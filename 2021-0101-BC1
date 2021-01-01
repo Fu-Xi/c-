@@ -1,0 +1,7 @@
+#include <stdio.h>
+
+int main()
+{
+	printf("practice makes perfect!");
+	return 0;
+}
