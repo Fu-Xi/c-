@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    double attach = 57.88;//伤害
+    double attachAdd = 4.5;//伤害增加
+    int attachRange = 172;//攻击距离
+
+    double defend = 27.536;//护甲
+    double defendAdd = 3.0;//护甲增加
+    double mokang = 32.1;//魔抗
+    double mokangAdd = 1.25;//魔抗增加
+
+    double life = 616.28;//生命
+    double lifeAdd = 84.25;//生命增加
+    double lifeRecover = 7.84;//生命回复
+    double lifeRecoverAdd = 0.5;//生命回复增加
+
+    double fali = 0.0;//法力
+    double faliAdd = 0.0;//法力增加
+    double faliRecover = 0.0;//法力回复
+    double faliRecoverAdd = 0.0;//法力回复增加
+
+    int MoveSpeed = 340;//移速
+    int dianjuan = 450;//点券
+    int jinbi = 1000;//金币
+
+    printf("名称：德玛西亚之力·盖伦\n");
+    printf("伤害：%.2lf(+%.1lf)\t攻击距离：%d\n",attach,attachAdd,attachRange);
+    printf("护甲：%.3lf(+%.1lf)\t魔抗：%.1lf(+%.2lf)\n",defend,defendAdd,mokang,mokangAdd);
+    printf("生命：%.2lf(+%.2lf)\t生命回复：%.2lf(+%.1lf)\n",life,lifeAdd,lifeRecover,lifeRecoverAdd);
+    printf("法力：%.1lf(+%.1lf)\t\t法力回复：%.1lf(+%.1lf)\n",fali,faliAdd,faliRecover,faliRecoverAdd);
+    printf("移速：%d\t\t定位：上单 辅助 打野\n",MoveSpeed);
+    printf("点券：%d\t\t金币：%d\n",dianjuan,jinbi);
+    return 0;
+}
