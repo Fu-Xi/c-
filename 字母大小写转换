@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    要求用户输入一个小写字母，然后显示相应的大写字母
+    */
+    char BigLetter;   //大写字母
+    char SmallLetter; //小写字母
+
+    //输入一个小写字母
+    printf("输入小写字母：");
+    scanf("%c",&SmallLetter);
+
+    //小写转大写
+    BigLetter = SmallLetter - 32;
+
+    //输入输出显示
+    printf("\n输入的小写字母：%c",SmallLetter);
+    printf("\n\n对应的大写字母：%c",BigLetter);
+
+    return 0;
+}
