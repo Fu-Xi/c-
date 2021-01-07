@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    某员工提供了基本工资、物价津贴及房租津贴。
+    其中物价津贴占基本工资的40%，房租津贴占基本
+    工资的20%。编写程序计算实际工资，要求输入某
+    员工的基本工资，计算应向该员工支付的实际工资。
+    */
+
+    //定义变量
+    float BasisWage;//基本工资
+    float RentSubsidy;//房租津贴
+    float PriceSubsidy;//物价津贴
+    float RealWage;//实际工资
+
+    //给变量赋值
+    printf("输入基本工资：");
+    scanf("%f",&BasisWage);
+    printf("\n基本工资：%7.2f",BasisWage);
+
+    //计算津贴和实际工资
+    RentSubsidy = BasisWage * 20 / 100;
+    PriceSubsidy = BasisWage * 40 / 100;
+    RealWage = BasisWage + RentSubsidy + PriceSubsidy;
+
+    //输出实际工资、房租津贴、物价津贴
+    printf("\n房租津贴：%7.2f",RentSubsidy);
+    printf("\n物价津贴：%7.2f",PriceSubsidy);
+    printf("\n\n实际工资：%7.2f",RealWage);
+
+    return 0;
+}
