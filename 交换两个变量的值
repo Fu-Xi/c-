@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    //定义变量
+    int num1;
+    int num2;
+    int num3;
+
+    //输入变量值
+    printf("\n请输入第一个数：");
+    scanf("%d",&num1);
+    printf("\n请输入第二个数：");
+    scanf("%d",&num2);
+
+    //显示输入变量值
+    printf("\n第一个数是：%d",num1);
+    printf("\n\n第二个数是：%d",num2);
+
+    //交换变量
+    num3 = num1;
+    num1 = num2;
+    num2 = num3;
+
+    //显示输出变量值
+    printf("\n\n交换后的第一个数：%d",num1);
+    printf("\n\n交换后的第二个数：%d",num2);
+
+    return 0;
+}
