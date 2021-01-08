@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    用户输入矩形的长和宽，计算矩形的面积和周长
+    计算面积的公式：面积=长度*宽度
+    计算周长的公式：周长=2*(长+宽)
+    */
+
+    //定义变量
+    float length;    //长度
+    float width;     //宽度
+    float aear;      //面积
+    float perimeter; //周长
+
+    //给变量赋值
+    printf("输入长度：");
+    scanf("%f",&length);
+    printf("\n输入宽度：");
+    scanf("%f",&width);
+
+    //计算面积和周长
+    aear = length * width;
+    perimeter = 2 * (length + width);
+
+    //输出参数
+    printf("\n矩形长度：%7.2f",length);
+    printf("\n矩形宽度：%7.2f",width);
+    printf("\n矩形面积：%7.2f",aear);
+    printf("\n矩形周长：%7.2f",perimeter);
+
+    return 0;
+}
