@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    某城市的温度是以摄氏度为单位记录的。
+    将温度转换为设施的，并以华氏度和摄
+    氏度为单位显示温度
+    */
+
+    //定义变量
+    float HuaShiDu;//华氏度
+    float SheShiDu;//摄氏度
+
+    //输入华氏温度
+    printf("输入华氏温度：");
+    scanf("%f",&HuaShiDu);
+
+    //华氏度与摄氏度转换
+    SheShiDu = 5 / 9.0 * (HuaShiDu - 32);
+
+    //显示华氏度与摄氏度
+    printf("\n华氏度：%7.2f℉",HuaShiDu);
+    printf("\n摄氏度：%7.2f℃",SheShiDu);
+
+    return 0;
+}
