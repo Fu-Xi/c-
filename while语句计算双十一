@@ -1,0 +1,17 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int year = 2015;     //年份
+    double asset = 800;  //金额
+
+    while(asset < 2000)
+    {
+        year++;
+        asset *= 1.25;
+
+    }
+    printf("%d年交易额将达到2000亿",year);
+    return 0;
+}
