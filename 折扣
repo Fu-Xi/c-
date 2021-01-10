@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    如果购买的三种商品有一种商品单价大于1000
+    或三种商品总金额大于5000，折扣率为30%，否
+    则没有折扣
+    */
+
+    //定义变量
+    double pixie;    //皮鞋
+    double nvbao;    //女包
+    double xiangshui;//香水
+    double jine;    //总金额
+    double fukuan;   //付款
+    double zhekou;   //折扣
+
+    printf("皮鞋价格：");
+    scanf("%lf",&pixie);
+    printf("女包价格：");
+    scanf("%lf",&nvbao);
+    printf("香水价格：");
+    scanf("%lf",&xiangshui);
+
+    jine = pixie + nvbao + xiangshui * 2;
+
+    if(pixie > 1000 || nvbao >1000 || xiangshui > 1000 || jine > 5000)
+        {
+            zhekou = 0.3;
+        }
+    else
+        {
+            zhekou = 0;
+        }
+
+    fukuan = jine * (1 - zhekou);
+
+    printf("总金额为：%lf",jine);
+    printf("\n应付金额为：%lf",fukuan);
+
+    return 0;
+
+}
