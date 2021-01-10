@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int code = 123456;
+    int getcode;
+    int i = 0;
+
+
+    while(i <= 3)
+    {
+        printf("输入密码：");
+        scanf("%d",&getcode);
+
+        if(getcode != code)
+        {
+            printf("密码错误！您还有%d次机会\n",2 - i);
+        }
+        if(i == 2)
+        {
+            printf("输入次数用完！\n");
+            exit(0);
+        }
+        i++;
+
+    }
+
+    return 0;
+}
