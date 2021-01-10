@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    double flowerPrice;//鲜花价格
+
+    //打印剧情
+    printf("在一个月黑风高的夜晚\n");
+    printf("一个小男生用自己的零花钱给小女生买了一束鲜花\n");
+    printf("小女生问小男生鲜花的价格，“这花多少钱？”");
+    printf("小男生回答：");
+
+    //录入鲜花的价格
+     scanf("%lf",&flowerPrice);
+
+    //模拟小女生的反应
+    if(flowerPrice > 999999)
+    {
+        printf("小女生直接晕过去了！\n");
+    }
+    else if(flowerPrice >= 100000 && flowerPrice < 999999)
+    {
+        printf("明天就结婚！\n");
+    }
+    else if(flowerPrice >=10000 && flowerPrice < 99999)
+    {
+        printf("拉拉手意思意思，明天再约！\n");
+    }
+    else
+    {
+        printf("好吧，我们是普通朋友，明天再约！\n");
+    }
+    return 0;
+}
