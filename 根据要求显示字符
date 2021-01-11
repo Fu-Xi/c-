@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    编写一个程序，用于接收用户输入的数字，
+    然后显示从0到该数为止的所有字符,询问用
+    户是否愿意再次继续同样的过程。
+    */
+
+    char answer;
+    int myNum,cnt;
+    answer = 'y';
+    while(answer == 'y')
+    {
+        //answer = ' ';
+        printf("请输入一个数字：");
+        scanf("%d",&myNum);
+        cnt = 0;
+
+        while(cnt <= myNum)
+        {
+            printf("\n %d : %c",cnt,cnt);
+            printf("\n");
+            cnt++;
+        }
+        printf("\n您是否要继续(y/n)：");
+        fflush(stdin);
+        scanf("%c",&answer);
+
+    }
+}
