@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*编写一个程序，让用户输入一个正整数，
+    然后计算该数字各位数之和。例如，用户
+    输入的数字是123，程序输出结果是6。
+    */
+    int PositiveInteger;
+    int right_digit;
+    int sum = 0;
+
+    printf("输入正整数：");
+    scanf("%d",&PositiveInteger);
+
+    while(PositiveInteger > 0)
+    {
+        right_digit = PositiveInteger % 10;
+        PositiveInteger = PositiveInteger / 10;
+        sum += right_digit;
+    }
+
+    printf("输入的正整数各位数的和：sum = %d\n",sum);
+    return 0;
+}
