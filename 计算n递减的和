@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    计算级数n+(n-1)+(n-2)+...+3+2+1的值，
+    其中n的值由用户输入。列入，用户输入
+    的数字是8，则计算8+7+6+5+4+3+2+1的值，
+    计算结果应是36。
+    */
+
+    int sum = 0; //n+(n-1)+(n-2)+...+3+2+1的和
+    int n;       //输入的和开始的值
+
+    //计算和
+    printf("输入数字n：");
+    scanf("%d",&n);
+
+    do{
+        sum += n;
+        n--;
+    }while(n > 0);
+    printf("sum=%d",sum);
+    return 0;
+}
