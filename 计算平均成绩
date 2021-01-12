@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    根据输入某个班级学员的成绩，计算该班学员的平均成绩。
+    班级的人数要求用户输入。根据输入的人数，分别录入学
+    员的成绩。计算该班学员的平均成绩，并显示计算结果。
+    最后询问用户是否继续，直到用户自己确定要结束程序退出。
+    */
+    int studentNumber;//学员的总数
+    int i;            //学员的编号
+    int grade;        //学员的成绩
+    int sum;          //总分数
+    int average;      //平均分数
+    char answer = 'y';//判断循环
+
+    while(answer == 'y')  //判断是否输入另一个班级的数
+    {
+        i = 1;
+        sum = 0;
+        printf("请输入该班级的学员总数：");
+        scanf("%d",&studentNumber);
+
+        while(i <= studentNumber)   //循环输入每个学员的成绩
+        {
+            printf("请输入学号%d的成绩：",i);
+            scanf("%d",&grade);
+            i++;
+            sum += grade;           //计算班级成绩总和
+        }
+        average = sum / studentNumber; //计算班级平均成绩
+        printf("\n该班级学员的平均成绩为：%d",average);
+
+        fflush(stdin);  //清空缓冲区
+        printf("\n是否输入另一个班级的成绩(y/n)："); //用户决定是否继续下个班级
+        scanf("%c",&answer);
+    }
+    return 0;
+}
