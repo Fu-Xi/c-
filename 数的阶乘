@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    输入一个正整数，求该数的阶乘。
+    询问用户是否愿意继续。
+    */
+
+    int n;       //用户输入的数字
+    int sum; //要求的积
+    char answer; //判断用户是否继续
+    answer = 'y';//当值为y时继续
+
+    //用户判断是否继续循环
+    while(answer == 'y')
+    {
+        printf("\n输入正整数n：");
+        scanf("%d",&n);
+        sum = 1;
+        //计算所求积
+        while(n > 0)
+        {
+            sum *= n;
+            n--;
+        }
+
+        printf("\n输入的正整数n!的值为：n!= %d\n",sum);
+        fflush(stdin);
+
+        //输入用户是否继续
+        printf("\n您是否要继续(y/n)：");
+        scanf("%c",&answer);
+    }
+    return 0;
+}
