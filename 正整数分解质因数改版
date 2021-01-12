@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int n;
+    char answer = 'y';
+    int k;
+
+    while(answer == 'y')
+    {
+        answer = ' ';
+        printf("输入正整数：");
+        scanf("%d",&n);
+        printf("%d=",n);
+        k = 2;
+
+        while(n != k)
+        {
+            while(n % k == 0)
+            {
+                printf("%d",k);
+                if(n != k)
+                {
+                    printf("*");
+                }
+                n /= k;
+            }
+            k++;
+        }
+        printf("%d",k);
+
+        fflush(stdin);
+        printf("\n\n是否继续(y/n)：");
+        scanf("%c",&answer);
+    }
+    return 0;
+}
