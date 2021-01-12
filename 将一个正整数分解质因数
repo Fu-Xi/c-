@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    将一个正整数分解质因数。例如：输入90，
+    打印90=2*3*3*5。
+    */
+
+    int n;
+    char answer = 'y';
+    int k;
+
+    while(answer == 'y')
+    {
+        printf("输入正整数：");
+        scanf("%d",&n);
+        printf("%d=",n);
+        k = 2;
+
+        while(n != k)
+        {
+            if(n % k == 0)
+            {
+                printf("%d",k);
+                printf("*");
+                n = n / k;
+                //printf("\n%d",n);
+
+                if(n % k == 0)
+                {
+                    printf("%d",k);
+                    printf("*");
+                    n = n / k;
+                    //printf("\n%d",n);
+                }
+                k++;
+                if(n % k != 0)
+                {
+                    k++;
+                }
+            }
+        }
+        printf("%d",k);
+
+        printf("\n\n是否继续程序就(y/n)：");
+        fflush(stdin);
+        scanf("%c",&answer);
+    }
+    return 0;
+}
