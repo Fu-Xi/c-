@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int number;//输入数字
+    int i;
+
+    printf("请输入一个数字：");
+    scanf("%d",&number);
+
+    for(i = 0;i != number;i++)
+    {
+        printf("%d + %d = %d",i,number - i,number);
+        if(i % 2 == 0)
+        {
+            printf("\t");
+        }
+        else
+        {
+            printf("\n");
+        }
+    }
+
+    return 0;
+}
