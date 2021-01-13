@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int main()
+{
+    /*
+    1.设定一个商品的价格，让用户去猜
+    2.用户输入猜测的价格后，系统给出
+    大、小的提示
+    3.如果在5轮内猜到正确的价格，给出
+    奖励提示
+    */
+    int i;  //输入次数
+    int price;//商品价格
+    int input;//用户猜测的商品价格
+    srand(time(NULL));//以时间为种子，在不同时间执行程序产生的随机数不同
+    price = rand();//产生随机数
+
+    //循环用户输入价格
+    for(i = 0; ;i++)
+    {
+        printf("输入猜测的价格：");
+        scanf("%d",&input);
+
+        //判断输入价格大于、小于或等于商品价格
+        if(input < price)
+        {
+            printf("\n输入价格小于商品价格！");
+            printf("\n");
+        }
+        else if(input > price)
+        {
+            printf("\n输入价格大于商品价格！");
+            printf("\n");
+        }
+        else
+        {
+            if(i <= 5)
+            {
+                printf("\n在5回合内猜出，获得奖励！");
+                break;
+            }
+            else
+            {
+                printf("猜测正确！");
+                break;
+            }
+        }
+    }
+
+    return 0;
+}
