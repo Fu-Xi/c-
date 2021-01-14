@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    用*号输出一个菱形图案，图案如下。
+          *
+
+        * * *
+
+      * * * * *
+
+    * * * * * * *
+
+      * * * * *
+
+        * * *
+
+          *
+
+    */
+
+    int i;//行数
+    int n = 6;//两侧空格数量
+    int count;//计数器
+    int num;//*号的位置
+    //外层循环控制行数
+    for(i = 0;i < 7;i++)
+    {
+        //内层循环控制列数
+        for(count = n;count > 0;count--)
+        {
+            printf(" ");
+        }
+        for(num = 0;num < 13 - 2 * n;num++)
+        {
+            if(num % 2 == 0)
+            {
+                printf("*");
+            }
+            else
+            {
+                printf(" ");
+            }
+        }
+        if(i < 3)
+        {
+            n -= 2;
+        }
+        else
+        {
+            n += 2;
+        }
+        printf("\n\n");
+    }
+
+
+    return 0;
+}
