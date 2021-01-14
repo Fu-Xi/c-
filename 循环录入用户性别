@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    循环录入用户性别，只能使用字符m/M（男）或f/F（女）。
+    一旦输入错误，结束录入。
+    要求统计录入正确的次数。
+    */
+    char sex;
+    int i = 0;
+
+    for(;;i++)
+    {
+        printf("请输入性别：");
+        sex = getchar();  //替换scanf("%c",&sex);
+        fflush(stdin);    //清空缓冲区
+        if(sex != 'm' && sex != 'M' && sex != 'f' && sex != 'F')//判断输入是否错误
+        {
+            break;
+        }
+    }
+    printf("\n录入正确的次数：%d",i);
+    return 0;
+}
