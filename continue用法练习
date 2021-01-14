@@ -1,0 +1,23 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int age;
+    int count = 0;
+    int i;
+
+    for(i = 0;i < 5;i++)
+    {
+        printf("请输入玩家年龄：");
+        scanf("%d",&age);
+        if(age > 0)
+        {
+            continue;
+        }
+        count++;
+    }
+    printf("%d",i);
+    printf("\n输入错误%d次",count);
+    return 0;
+}
