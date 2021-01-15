@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+       /*
+    用*号输出一个菱形图案，图案如下。
+       *
+      ***
+     *****
+    *******
+     *****
+      ***
+       *
+    */
+    int i,j;
+
+    for(i = 0;i < 4;i++)
+    {
+        for(j = 0;j <= 2 - i;j++)
+        {
+            printf("%c",' ');
+        }
+        for(j = 0;j <= 2 * i;j++)
+        {
+            printf("%c",'*');
+        }
+        printf("\n");
+    }
+
+    for(i = 0;i < 3;i++)
+    {
+        for(j = 0;j <= i;j++)
+        {
+            printf("%c",' ');
+        }
+        for(j = 0;j <= 2 * (2 - i);j++)
+        {
+            printf("%c",'*');
+        }
+        printf("\n");
+    }
+    return 0;
+}
