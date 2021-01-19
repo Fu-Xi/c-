@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    有一个数列：8,4,2,1,23,344,12
+        循环输出数列的值
+        求数列中所有数值的和及平均数
+        猜数游戏：从键盘中任意输入一个数据，判断数列中是否包含次数
+    */
+
+    int number[7] = {8,4,2,1,23,344,12};
+    int i/*循环变量，一般用 i,j,k*/,num/*用户输入数字*/,e/*判断是否退出程序*/,sum = 0/*求和*/;
+    double average/*平均数*/;
+
+    //循环输出数列的值
+    printf("输出数组元素：\n");
+    for(i = 0;i < 7;i++)
+    {
+        printf("%d\t",number[i]);
+        sum += number[i];  //求数列中所有数值的和
+    }
+    average = sum / 7.0;    //求数列中所有数值的平均数
+    printf("\n数组之和：sum = %d\n",sum);
+    printf("数组的平均数：average = %lf\n",average);
+    printf("***********************************************\n");
+
+    //猜数游戏：从键盘中任意输入一个数据，判断数列中是否包含次数
+    for(;;)
+    {
+        printf("请输入一个正整数：");
+        scanf("%d",&num);
+        for(i = 0;i < 7;i++)
+        {
+            if(number[i] == num)
+            {
+                printf("数组中包含这个数！\n");
+
+                printf("是否退出（0）程序：");//判断是否退出程序
+                scanf("%d",&e);
+                if(e == 0)
+                {
+                    exit(0);
+                }
+                break;
+            }
+
+
+        }
+        if(i == 7)
+        {
+            printf("数组中没有这个数！\n");
+        }
+    }
+
+    return 0;
+}
