@@ -1,0 +1,97 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    /*
+    根据要求操作排行榜战力值
+        1、战力值从大到小排列
+        2、删除战斗力42322
+        3、插入战斗力41000并保持降序
+        战斗力：45771 42322 40907 40706
+    */
+
+//删除战斗力 42322
+    int i,j;//循环变量
+    int count = 4;//数组变量数
+    int num;//记录删除战斗力的位置
+    double attachPower[] = {45771,42322,40907,40706};//战斗力
+    double deletePower;//要删除的战斗力值
+    double insertPower;
+    double temp;//临时变量储存交换值
+
+
+    //输出战斗力
+    printf("战斗力：");
+    for(i = 0;i < count;i++)
+    {
+        printf("%.2lf\t",attachPower[i]);
+    }
+
+    //输入要删除的战斗力
+    printf("\n输入要删除的战斗力：");
+    scanf("%lf",&deletePower);
+
+    //记录要删除的战斗力的位置
+    for(i = 0;i < count;i++)
+    {
+        if(attachPower[i] == deletePower)
+        {
+            num = i;
+            break;
+        }
+    }
+
+    //剔除删除数字
+    for(i = 0;i < count - num -1;i++)
+    {
+        attachPower[i + num] = attachPower[num + i + 1];
+    }
+
+    count--;
+    //删除后战斗力显示
+    printf("删除后战斗力：\n");
+    for(i = 0;i < count;i++)
+    {
+        printf("%.2lf\t",attachPower[i]);
+    }
+
+
+    count++;
+//插入战斗力41000并保持降序
+    printf("\n输入要插入的值：");
+    scanf("%lf",&insertPower);
+    attachPower[count - 1] = insertPower;
+
+    //插入战斗力值显示
+    printf("插入后战斗力：\n");
+    for(i = 0;i < count;i++)
+    {
+        printf("%.2lf\t",attachPower[i]);
+    }
+
+//战力值从大到小排列
+    //外部循环控制轮数
+    for(i = 0;i < count - 1;i++)
+    {
+        //内部循环控制每轮比较次数
+       for(j = 0;j < count - i -1;j++)
+       {
+            if(attachPower[j] < attachPower[j + 1])
+            {
+                temp = attachPower[j];
+                attachPower[j] = attachPower[j + 1];
+                attachPower[j + 1] = temp;
+            }
+       }
+    }
+
+    //排列大小后的战斗力显示
+    printf("\n战力值从大到小：\n");
+    for(i = 0;i < count;i++)
+    {
+        printf("%.2lf\t",attachPower[i]);
+    }
+
+    return 0;
+}
