@@ -1,0 +1,325 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h> //支持字符串操作
+#define MAX 6 //常量MAX表示系统要求的最大妃子数量
+
+#include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib,"Winmm.Lib")
+//PlaySound(TEXT("sounds\\少年志-小旭音乐-28632711_1.wav"),NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
+int main()
+{
+
+    int i,j,k = 0;               //循环变量
+    int day;               //循环天数
+    int temp;              //临时整型变量
+    int nums;              //记录好感度低于60的妃子数
+    int count = 5;         //当前未打入冷宫的嫔妃数量
+    int choice;			   //皇帝的选择1-4之间
+    int searchIndex = -1;  //用来存放查找的下标
+    char emperorName[50];  //皇帝的名号
+    char tempName[20];     //用来存放临时字符串的字符数组
+    //妃子姓名
+    char names[MAX][20] = {"郭德纲","于谦","于小屁","赵百灵","于玉菊"};
+    //嫔妃的级别数组
+    char levelNames[5][10] = {"贵人","嫔妃","贵妃","皇贵妃","皇后"};
+    //用来存放每位妃子的级别，每个数组元素对应每个妃子的当前级别
+    int levels[MAX] = {1,3,0,0,4,-1};
+    //loves数组中的每个元素对应每个妃子的好感度，初始情况，每个人的好感度都为100
+    int loves[MAX] = {100,100,100,100,100,-1};
+
+    //随机美人诗句
+    char beautyPoetry[10][70] = {"北方有佳人，绝世而独立\n一顾倾人城，再顾倾人国\n",
+                                 "玉楼天半起笙歌，风送宫嫔笑语和\n月殿影开闻夜漏，水晶帘卷近秋河\n",
+                                 "寂寂花时闭院门，美人相并立琼轩\n含情欲说宫中事，鹦鹉前头不敢言\n",
+                                 "天生丽质难自弃，一朝选在君王侧\n回眸一笑百媚生，六宫粉黛无颜色\n",
+                                 "梨花风动玉阑香，春色沉沉锁建章\n唯有落红官不禁，尽教飞舞出宫墙\n",
+                                 "汉宫春色傍黄昏，曾谒金门奉至尊\n月上海棠人寂寂，焚香百拜感皇恩\n",
+                                 "名花倾国两相欢，常得君王带笑看\n解释春风无限恨，沈香亭北倚阑干\n",
+                                 "媚眼含羞合，丹唇逐笑开\n风卷葡萄带，日照石榴裙\n",
+                                 "云想衣裳花想容，春风拂槛露华浓\n若非群玉山头见，会向瑶台月下逢\n",
+                                 "千秋无绝色，悦目是佳人\n倾国倾城貌，惊为天下人\n"
+                                 } ;
+
+    //随机冷宫诗句
+    char coldPalace_Poetry[7][70] = {"寂寂花时闭院门，美人相并立琼轩\n含情欲说宫中事，鹦鹉前头不敢言\n",
+                                     "故国三千里，深宫二十年\n一声何满子，双泪落君前\n",
+                                     "泪湿罗巾梦不成，夜深前殿按歌声\n红颜未老恩先断，斜倚熏笼坐到明\n",
+                                     "纱窗日落渐黄昏，金屋无人见泪痕\n寂寞空庭春欲晚，梨花满地不开门\n",
+                                     "柳色参差掩画楼，晓莺啼送满宫愁\n年年花落无人见，空逐春泉出御沟\n",
+                                     "寥落古行宫，宫花寂寞红\n白头宫女在，闲坐说玄宗\n",
+                                     "宫人早起笑相呼，不识阶前扫地夫\n乞与金钱争借问，外头还似此间无\n"
+                                     };
+
+
+    //播放背景音乐
+    PlaySound(TEXT("sounds\\少年志-小旭音乐-28632711_1.WAV"),NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
+
+    printf("请输入当前登基的皇帝名号：");
+    scanf("%s",emperorName);
+
+    for(day = 0;day < 10;day++)
+    {
+        srand(time(NULL));//使用时间作为种子，产生不一样的随机数
+
+        printf("\n第%d天\n",day + 1);
+        printf("1、皇帝下旨选妃：\t（增加功能）\n");
+        printf("2、翻牌宠幸：\t\t（修改状态功能好）\n");
+        printf("3、打入冷宫！\t\t（删除功能）\n");
+        printf("4、单独召见爱妃去小树林做纯洁的事。\n");
+
+
+        printf("陛下请选择：");
+        scanf("%d",&choice);
+        switch(choice)
+        {
+        case 1://皇帝下旨选妃：\t\t（增加功能）
+            //1、增加前需要判断数组有没有空间
+            //2、增加数组元素（names、loves、levels）
+
+            PlaySound(TEXT("sounds\\夺宝斗地主-小旭音乐-67645382.wav"),NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
+            if(count < MAX)
+            {
+                //执行添加操作
+                printf("请输入新纳娘娘的名讳：");
+                scanf("%s",names[count]);
+                //将第count个元素的状态初始化
+                levels[count] = 0; //级别初始为0
+                loves[count] = 100;//好感度初始为100
+
+                for(i = 0;i < count;i++)
+                {
+                    loves[i] -= 10;
+                }
+
+                count++;           //添加完元素后记得添加计数器
+
+                printf("\n%s",beautyPoetry[rand() % 10]);
+                printf("\n新增妃子，其她人好感度-10\n");
+            }
+            else
+            {
+                printf("陛下要节制啊，后宫已经人满为患！\n添加失败！\n");
+            }
+
+            break;
+        case 2://翻牌宠幸：\t\t（修改状态功能好）
+            //1.找到要宠幸妃子的下标
+            //2.修改这个妃子的状态 好感度+10， 级别升1级，如果最高级就不再升级
+            //3.修改其她妃子的状态 由于羡慕嫉妒恨，其她妃子好感度-10
+            //4.需要解决的bug：未支持姓名不存在的情况
+
+            PlaySound(TEXT("sounds\\背景1-小旭音乐-67645340.wav"),NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
+            printf("陛下，请输入今天要翻牌娘娘的名讳：");
+            scanf("%s",tempName);
+            //字符串的查找strcmp，需要引入<string.h>
+            //strcmp(tempName,"abc") == 0-另个字符串相等；1-前一个大于后一个；-1-后一个大于前一个
+            for(i = 0;i < count;i++)
+            {
+                if(strcmp(tempName,names[i]) == 0)//如果输入的姓名刚好等于数组中的某个姓名
+                {
+                    loves[i] += 10;
+                    if(levels[i] >= 4)
+                    {
+                        k = 1;
+                    }
+                    //级别要注意，不要超过5级（0-4之间）
+                    levels[i] = levels[i] >= 4 ? 4 : levels[i] + 1 ;
+
+                    if(levels[i] == 4 && k == 0)
+                    {
+                        printf("\n************************************************\n");
+                        printf("Duang~%s等级提升为：皇后\n",names[i]);
+                        printf("************************************************\n");
+                    }
+                }
+                else
+                {
+                    loves[i] -= 10;
+                }
+            }
+
+            printf("\n%s",beautyPoetry[rand() % 7]);
+            printf("\n所有娘娘好感度-10！\n");
+
+            break;
+        case 3://打入冷宫！\t\t（删除功能）
+            //1.查找
+            //2.后面一个赋给前面一个元素
+            //3.总数--
+            //修改其她妃子的状态，好感度-20
+
+            PlaySound(TEXT("sounds\\青笛一曲(小镇、追忆、冷宫)-橙光音乐-21380604.wav"),NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
+            printf("陛下，请输入要打入冷宫的姓名：");
+            scanf("%s",tempName);
+
+            //查找输入的娘娘，找到后记录下标
+            for(i = 0;i < count;i++)
+            {
+                if(strcmp(tempName,names[i]) == 0)//比较字符串是否相等
+                {
+                    //记录下要查找的下标
+                    searchIndex = i;
+                    break;
+                }
+            }
+            if(-1 == searchIndex)//如果searchIndex的值为初值-1，表示没有找到
+            {
+                printf("虚惊一场，无人打入冷宫！\n");
+            }
+            else
+            {
+                printf("\n%s",coldPalace_Poetry[rand() % 9]);
+                printf("\n%s已被打入冷宫，人情冷暖，所有娘娘好感度+10！\n",names[i]);
+                //找到后后面一个赋值给前面一个
+                for(i = searchIndex;i < count - 1;i++)
+                {
+                    //names[i] = names[i + 1]; 因为是字符串，c语言中不支持数组的直接赋值
+                    //我们需要使用strcpy函数实现数组的赋值
+                    strcpy(names[i],names[i + 1]);
+                    loves[i] = loves[i + 1];
+                    levels[i] = levels[i + 1];
+                }
+                count--;
+            }
+
+            //剩余妃子好感度+10
+            for(i = 0;i < count;i++)
+            {
+                loves[i] += 10;
+                if(levels[i] >= 4)
+                {
+                    levels[i] = 4;
+                    k = 1;
+                }
+                else
+                {
+                    levels[i] += 1;
+                    k = 0;
+                }
+                if(levels[i] == 4 && k == 0)
+                    {
+                        printf("\n************************************************\n");
+                        printf("Duang~%s等级提升为：皇后\n",names[i]);
+                        printf("************************************************\n");
+                    }
+
+            }
+
+            break;
+        case 4://单独召见爱妃去小树林做纯洁的事
+            //1.查找
+            //2.增加好感度,召见爱妃好感度+20，其她妃子好感度-20
+            //3.可以使用数组设计诗歌，使用随机数字的方式，表示皇帝的文采
+
+            PlaySound(TEXT("sounds\\我嗨斗地主(竞技场游戏背景乐)-小旭音乐-67646286.wav"),NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
+            printf("陛下，请输入要召见爱妃的姓名：");
+            scanf("%s",tempName);
+
+            for(i = 0;i < count;i++)
+            {
+                if(strcmp(tempName,names[i]) == 0)
+                {
+                    loves[i] += 20;
+
+                    if(levels[i] >= 4)
+                    {
+                        levels[i] = 4;
+                        k = 1;
+                    }
+                    else
+                    {
+                        levels[i] += 1;
+                    }
+
+                    if(levels[i] == 4 && k == 0)
+                    {
+                        printf("\n************************************************\n");
+                        printf("Duang~%s等级提升为：皇后\n",names[i]);
+                        printf("************************************************\n");
+                    }
+
+                    printf("\n%s",beautyPoetry[rand() % 11]);
+                    printf("\n一夜春宵值千金，%s好感度+20,其她妃子好感度-20！\n",names[i]);
+                }
+                else
+                {
+                    loves[i] -= 20;
+                }
+
+            }
+
+
+            break;
+        default:
+            printf("君无戏言，陛下请再次确认！\n");
+            break;
+        }
+
+        //最后打印所有妃子状态前，以级别进行排序，使用冒泡排序
+
+        for(i = 0;i < count - 1;i++)
+        {
+            for(j = 0;j < count - i -1;j++)
+            {
+                if(levels[j] < levels[j + 1])
+                {
+                    temp = levels[j];
+                    levels[j] = levels[j + 1];
+                    levels[j + 1] = temp;
+                    temp = loves[j];
+                    loves[j] = loves[j + 1];
+                    loves[j + 1] = temp;
+                    //注意字符串的交换
+                    strcpy(tempName,names[j]);
+                    strcpy(names[j],names[j + 1]);
+                    strcpy(names[j + 1],tempName);
+                }
+            }
+        }
+        printf("\n************************************************\n");
+        printf("测试代码：查看当前嫔妃的状态\n");
+        printf("%-12s级别\t好感度\n","姓名");
+        for(i = 0;i < count;i++)
+        {
+            printf("%-12s%s\t%d\n",names[i],levelNames[levels[i]],loves[i]);
+        }
+        printf("************************************************\n");
+
+
+        nums = 0;//判断好感度低于60的人数，每次循环清0
+        //只要有三个妃子的好感度低于60，游戏结束，妃子觉醒造反
+        for(i = 0;i < count;i++)
+        {
+
+            if(loves[i] < 60)
+            {
+                nums++;
+            }
+        }
+        if(nums >= 3)
+        {
+            printf("\n觉醒的嫔妃：姐妹们，组队刷皇上去了！\n");
+            printf("公元2021年，皇帝卒，共执政%d天！\n",day + 1);
+            break;
+        }
+        else if(day >= 9)
+        {
+            printf("皇帝登基10天来，五谷丰登、风调雨顺、妻妾成群！\n");
+            printf("没羞没臊的生活继续着\n");
+            printf("**********************完结**********************\n");
+        }
+
+
+    }
+
+
+    return 0;
+}
