@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 5
+
+int main()
+{
+    int i;
+    int temp;
+    int array[N] = {0,98,12,45,66};
+    int * ptr_array = array;
+    int * ptr_array2 = array + N - 1;
+
+    for(i = 0;i < N;i++)
+    {
+        printf("%d\t%p\n",*(array+i),array+i);
+    }
+
+    printf("\n\n");
+    while(ptr_array != ptr_array2)
+    {
+        temp = *ptr_array;
+        *ptr_array = *ptr_array2;
+        *ptr_array2 = temp;
+        ptr_array++;
+        ptr_array2--;
+    }
+
+    for(i = 0;i < N;i++)
+    {
+        printf("%d\t%p\n",*(array+i),array+i);
+    }
+
+
+
+
+
+
+
+
+
+    /*
+    printf("原来排序：");
+    for(i = 0;i < N;i++)
+    {
+        printf("%d\t%p\n",*ptr_array+i,ptr_array+i);
+    }
+
+    for(i = 0;i < N/2;i++)
+    {
+        temp = *(ptr_array+i);
+        *(ptr_array+i) = *(ptr_array+N-i-1);
+        *(ptr_array+N-i-1) = temp;
+    }
+    printf("逆序后的数：\n");
+    for(i = 0;i < N;i++)
+    {
+        printf("%d\t%p\n",*(ptr_array+i),ptr_array+i);
+    }
+    */
+    return 0;
+}
