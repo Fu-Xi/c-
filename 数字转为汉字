@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int i,j;//循环变量
+    int weiShu;//记录输入数字的个数
+    int nums;//记录用户输入的数字
+    int chu;//与用户输入数字相除取出每位数字
+    int temp;//临时变量，用来记录用户输入数字的每位数字
+    char chinese1[10][4] = {"零","壹","贰","叁","肆","伍","陆","柒","捌","玖"};
+    char chinese2[15][4] = {"拾","佰","仟","万","拾","佰","仟","亿","拾","佰","仟","万","拾","佰","仟"};
+
+    while(1)
+    {
+        weiShu = 0;
+        chu = 1;
+        //用户输入一个正整数
+        printf("请用户输入一个正整数：\n");
+        scanf("%d",&nums);
+
+
+        //判断用户输入数字几位数
+        do{
+            chu *= 10;
+            weiShu += 1;
+        }while(nums / chu != 0);
+        //printf("%d",weiShu);
+
+
+        //取出每位数字
+        chu = 1;
+        for(i = 0;i < weiShu - 1;i++)
+        {
+            chu *= 10;
+        }
+        //printf("\n%d",chu);
+
+        //将每位数字转换为对应大小的汉字
+        for(i = 0;i < weiShu;i++)
+        {
+            temp = nums / chu;
+            nums %= chu;
+            //printf("%d\n",temp);
+            for(j = 0;j < 10;j++)
+            {
+                if(temp == j)
+                {
+                    printf("%s",chinese1[j]);
+                    //输出数字所在位数的单位
+                    printf("%s",chinese2[weiShu - i - 2]);
+                    break;
+                }
+
+            }
+
+            chu /= 10;
+        }
+        printf("圆整\n\n");
+    }
+
+
+    return 0;
+}
