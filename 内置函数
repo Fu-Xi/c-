@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <ctype.h>
+#include <time.h>
+
+int main()
+{
+    int i;
+//0表示假，非0表示真
+//对应头文件 <ctype.h>
+    //判断输入的字母是不是大写
+    printf("%d\n",isupper('A'));
+
+    //判断输入的字母是不是小写
+    printf("%d\n",islower('a'));
+
+    /*
+    以下两个如果只填数字例如isalpha(97)
+    表示的是ascii码
+    字符加引号isalpha('9')或者('a')判断输入的字母数字。
+    */
+    //判断传入的字符是否为字母
+    printf("%d\n",isalpha(97));
+    //判断传入的字符是否为数字
+    printf("%d\n",isdigit(9));
+
+    //小写字母转换为大写
+    printf("%c\n",toupper('a'));
+
+    //大写字母转换为小写
+    printf("%c\n",tolower('A'));
+
+    //打印所有ascii码
+    printf("\n");
+    for(i = 0;i < 127;i++)
+    {
+        printf("%c,",i);
+    }
+    printf("\n\n");
+
+
+//对应头文件 <math.h>
+    //ceil大于等于该数的最近整数
+    printf("%.2lf\n",ceil(-98.1));
+
+    //floor小于等于该数的最近整数
+    printf("%.2lf\n",floor(-98.5));
+
+    //求平方根
+    printf("%.2lf\n",sqrt(9));
+
+    //第一个数字为变量值，后一数字为平方幂，及5^2
+    printf("%2.lf\n",pow(5,2));
+
+    //返回值为整型，取数字的绝对值
+    printf("%d",abs(-98));
+
+//对应头文件<stdlib.h>
+    //srand(unsigned int)
+    srand(112);
+    /*
+    数字改变，随机数字随之改变，
+    相同数字运行，随机数字不变
+    */
+    int num1 = rand();
+    printf("\n%d",num1);
+    /*
+    随时间的改变，随机数字发生改变
+    */
+    srand(time(NULL));
+    int num2 = rand();
+    printf("\n%d\n",num2);
+
+//system函数常见用法
+
+    //冻结屏幕，暂停程序
+    system("pause");
+
+    //清屏操作
+    system("cls");
+
+    /*
+    exit(0)；-0表示正常退出，其它数表错误退出，
+    所输数字为错误代码，错误代码及错误原因
+    为自己定义
+    */
+
+    //修改背景色及前景色
+    system("color 4E");
+
+    //3600秒后自动关机
+    //system("shutdown /r /t 3600");
+
+    //取消自动关机
+    system("shutdown /a");
+    //或者 system("shutdown -a");
+
+    return 0;
+}
