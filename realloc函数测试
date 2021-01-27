@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int i;
+    int * nums;
+    nums = calloc(5,sizeof(int));
+
+    for(i = 0;i < 5;i++)
+    {
+        printf("%d\t%p\n",*(nums+i),nums+i);
+    }
+
+    printf("\n");
+    //改变nums所指内存区域的大小为新长度
+    nums = realloc(nums,sizeof(int)*6);
+
+    for(i = 0;i < 6;i++)
+    {
+        printf("%d\t%p\n",*(nums+i),nums+i);
+    }
+    return 0;
+}
