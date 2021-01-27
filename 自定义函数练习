@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+//函数原型
+void calcCircle();    //计算圆面积
+void calcRectangle(); //计算矩形面积
+void calcTriangle();  //计算三角形面积
+int calcSum();       //计算1-100之间的偶数和
+
+int main()
+{
+    //system("color DA");
+    /*
+    三种图形的面积计算
+    圆：s = PI * r * r
+    矩形：s = width * hight
+    三角形：s = width * hight / 2
+    */
+
+    //调用计算面积的自定义函数
+    calcCircle();
+    calcRectangle();
+    calcTriangle();
+
+    //如果函数有返回值，调用时，记得使用对应类型的变量来接收！
+    int sum = calcSum();
+    printf("\n\n1-100之间的偶数和为：%d",sum);
+
+    return 0;
+}
+
+/*
+计算圆的面积（用自定义函数的方式实现）
+*/
+void calcCircle()
+{
+    double s;      //圆的面积
+    double radius; //圆的半径
+    printf("输入圆的半径：");
+    scanf("%lf",&radius);
+    s = 3.14 * pow(radius,2);
+    printf("半径为%.2lf的圆面积为：%.2lf",radius,s);
+}
+
+/*
+计算矩形的面积（用自定义函数的方式实现）
+*/
+void calcRectangle()
+{
+    double width,hight; //矩形的宽高
+    double s;           //矩形的面积
+    printf("\n\n输入矩形宽高：");
+    scanf("%lf%lf",&width,&hight);
+
+    if(width <= 0 || hight <= 0)
+    {
+        printf("\n\n宽和高不能为负数！");
+        return;//前面定义的是 void 所以不写变量名；
+    }
+
+    s = width * hight;
+    printf("宽高为%.2lf和%.2lf的矩形面积为：%.2lf",width,hight,s);
+}
+
+/*
+计算三角形的面积（用自定义函数的方式实现）
+*/
+void calcTriangle()
+{
+    double width,hight; //三角形的底和高
+    double s;           //三角形的面积
+    printf("\n\n输入三角形的底和高：");
+    scanf("%lf%lf",&width,&hight);
+    s = width * hight /2;
+    printf("底和高为%.2lf和%.2lf的三角形面积为：%.2lf",width,hight,s);
+}
+
+/*
+计算1-100之间的偶数和
+*/
+int calcSum()
+{
+    int i;       //循环变量
+    int sum = 0; //和函数
+    for(i = 0;i < 100;i++)
+    {
+        if(i % 2 == 0)
+        {
+            sum += i;
+        }
+    }
+    //将计算好的结果返回
+    return sum;
+}
