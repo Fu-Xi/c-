@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int i;
+    int * nums;
+    //nums = (int *)malloc(20);//为前面的指针动态分配20个字节的空间
+    nums = (int *)malloc(sizeof(int) * 5);
+    //nums = calloc(5,sizeof(int));
+    //等价于：int nums[5]
+    //为指针动态分配空间后，指针就变成了数组
+
+    /*
+    for(i = 0;i < 5;i++)
+    {
+        printf("请输入第%d个元素：",i+1);
+        scanf("%d",nums + i);
+    }
+    */
+
+    printf("数组的元素为：\n");
+    for(i = 0;i < 5;i++)
+    {
+        printf("%d\t%p\n",*(nums + i),nums + i);
+    }
+    free(nums);//释放动态分配的内存
+    nums = NULL;
+
+    /*
+    //测试释放内存后的显示
+    printf("\n");
+    for(i = 0;i < 5;i++)
+    {
+        printf("%d\t%p\n",*(nums + i),nums + i);
+        //printf("%p\n",nums + i);
+    }
+    */
+
+    return 0;
+}
