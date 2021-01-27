@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+/*
+    三种图形的面积计算
+    圆：s = PI * r * r
+    矩形：s = width * hight
+    三角形：s = width * hight / 2
+    */
+//函数原型
+double calcCircle(double);//计算圆面积
+double calcRectangle(double,double);//计算矩形面积
+double calcTangle(double,double);//计算三角形面积
+double getNumber(double);//用户输入必须为正数
+double printArea(double);//打印面积
+
+int main()
+{
+    int choice;
+    double s;//面积
+    double radius;//半径
+    double width,hight;//长宽/底高
+    printf("1、计算圆的面积!\n");
+    printf("2、计算矩形的面积!\n");
+    printf("3、计算三角形的面积!\n");
+
+    printf("请选择要实现的目标：\n");
+    scanf("%d",&choice);
+
+    switch(choice)
+    {
+    case 1://计算圆面积
+        printf("请输入圆的半径：");
+        do{
+            if(!getNumber(radius))
+            {
+                printf("输入不能为负数，请重新输入：");
+            }
+            scanf("%lf",&radius);
+        }while(!getNumber(radius));
+        s = calcCircle(radius);
+        printArea(s);
+        break;
+
+    case 2://计算矩形面积
+        printf("请输入矩形的长宽：");
+        do{
+            if(!getNumber(width) || !getNumber(hight))
+            {
+                printf("输入不能为负数，请重新输入：");
+            }
+            scanf("%lf%lf",&width,&hight);
+        }while(!getNumber(width) || !getNumber(hight));
+        s = calcRectangle(width,hight);
+        printArea(s);
+        break;
+
+    case 3://计算三角形面积
+        printf("请输入三角形底高：");
+        do{
+            if(!getNumber(width) || !getNumber(hight))
+            {
+                printf("输入不能为负数，请重新输入：");
+            }
+            scanf("%lf%lf",&width,&hight);
+        }while(!getNumber(width) || !getNumber(hight));
+        s = calcTangle(width,hight);
+        printArea(s);
+        break;
+
+    default:
+        printf("本系统只支持3种图形，请在1-3之间选择！");
+        break;
+    }
+    return 0;
+}
+
+//函数实现
+
+//计算圆面积
+double calcCircle(double radius)
+{
+    double s;
+    s = 3.14 * pow(radius,2);
+    return s;
+}
+
+//计算矩形面积
+double calcRectangle(double width,double hight)
+{
+    double s;
+    s = width * hight;
+    return s;
+}
+
+//计算三角形面积
+double calcTangle(double width,double hight)
+{
+    double s;
+    s = width * hight / 2;
+    return s;
+}
+
+//用户输入必须为正数
+double getNumber(double num1)
+{
+    return num1 > 0;//如果num大于0会返回一个非0值，表示真
+}
+
+//打印面积
+double printArea(double s)
+{
+    printf("所求面积为：%.2lf",s);
+    return s;
+}
