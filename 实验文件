@@ -1,0 +1,57 @@
+main.c
+
+#include <stdio.h>
+#include <stdlib.h>
+
+//函数原型
+void report_count();
+void counter(int num);
+int count = 0;//文件作用域，外部链接
+
+int main()
+{
+    int value;//自动变量
+    register int i;//寄存器变量
+    printf("请输入任意数字，0退出：");
+    while(scanf("%d",&value) == 1 && value > 0)
+    {
+        count++;
+        for(i = value;i >= 0;i--)
+            counter(i);
+        printf("请输入任意数字，0退出：");
+    }
+
+    report_count();
+}
+
+//函数
+void report_count()
+{
+    printf("循环执行了%d次\n",count);
+}
+
+count.c
+
+#include <stdio.h>
+
+extern int count;//引用式声明，外部链接
+static int total = 0;//静态定义，内部链接
+void counter(int);//函数原型
+
+void counter(int num)
+{
+    //局部静态变量
+    static int subTotal = 0;
+    if(num <= 0)
+    {
+        printf("第%d轮循环执行完毕\n",count);
+        printf("局部静态变量subTotal和全局静态变量total：\n");
+        printf("subTotal：%d\ttotal：%d\n",subTotal,total);
+        subTotal = 0;//每次内循环结束后重置为0
+    }
+    else
+    {
+        subTotal += num;
+        total += num;
+    }
+}
