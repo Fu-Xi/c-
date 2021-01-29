@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+int GersStrLength(char[]);
+void GetString(char[],int count);
+
+int GersStrLength(char str[])
+{
+    int count = 0;//字符串中的字符个数
+    while(str[count] != '\0')
+    {
+        /*
+        if(str[count] == '\n')
+        {
+            str[count] = '\0';
+            break;
+        }
+        */
+        count++;
+    }
+    return count;
+}
+
+void GetString(char str[],int count)
+{
+    //使用fgets函数接收字符串，使用\0替换字符数组的最后一位\n
+    fgets(str,count,stdin);
+    //查找\n
+    char * find = strchr(str,'\n');
+    if(find)//如果找到了
+        *find = '\0';
+
+}
+
+
+int main()
+{
+    char names1[] = {'j','a','c','k','\0'};
+    //fgets(names1,5,stdin);
+    GetString(names1,20);
+    int len = GersStrLength(names1);
+    printf("字符串的长度为：%d\n",len);
+
+
+
+
+
+/*
+    //定义字符串的几种方式
+    //字符串和字符数组的区别：最后一位是否是空字符
+    char names1[] = {'j','a','c','k','\0'};
+    char names2[] = "jack";
+    char names3[50];
+    int i;
+
+    printf("请输入新名称：");
+    //gets(names3);//等价于scanf("%s",names3);只能录入字符串
+    //puts(names3);//等价于printf("s\n",names3);只能输出字符串
+
+    fgets(names3,50,stdin);//从标准输入流中读取10字节到数组names3中
+    printf("数组names3中的内容为：\n");
+    for(i = 0;i < 50;i++)
+    {
+        printf("%d\n",names3[i]);
+    }
+
+
+    printf("数组所占空间大小：%d\n",sizeof(names1));
+    printf("数组所占空间大小：%d\n",sizeof(names2));
+*/
+    return 0;
+}
