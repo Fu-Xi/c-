@@ -1,0 +1,121 @@
+                                        main.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "Hero.h"
+
+int main()
+{
+    InputHero();
+    return 0;
+}
+                                        Hero.h
+#ifndef HERO_H_INCLUDED
+#define HERO_H_INCLUDED
+#include <stdio.h>
+#include <stdlib.h>
+
+
+//结构体：英雄，职业，英雄能力，时间
+typedef struct _job
+{
+    int id;
+    char * name;//职业名称
+    char * desc;//职业的描述
+}Job;
+
+typedef struct _ability
+{
+    int id;
+    char * name;//技能名称
+    char * intro;//技能的说明
+}Ability;
+
+typedef struct _pubTime
+{
+    int year;
+    int month;
+    int day;
+}PubTime;
+
+typedef struct _hero
+{
+    int id;
+    char * name;//英雄名称
+    char sex;
+    //char * sex;//性别
+    Job job;//英雄职业
+    double hp;//英雄生命值
+    double speed;//攻击速度
+    Ability ability;//英雄技能
+    PubTime pubTime;//上线时间
+}Hero;
+
+//Job job；简化结构体的使用
+
+/**
+*函数原型
+*/
+//用来输入英雄的值
+void InputHero();
+//用来输出英雄的值
+void ShowHero();
+
+#endif // HERO_H_INCLUDED
+                                        Hero.c
+#include "Hero.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+Hero heros[5];
+Job jobs[] = {
+    {1,"法师","远程魔法伤害"},
+    {2,"战士","近战物理伤害"},
+    {3,"刺客","物理暴击"},
+    {4,"射手","远程攻击"},
+    {5,"牧师","魔法辅助"}
+};
+
+/*
+    int id;
+    char * name;//英雄名称
+    char sex;//性别
+    Job job;//英雄职业
+    double hp;//英雄生命值
+    double speed;//攻击速度
+    Ability ability;//英雄技能
+*/
+
+void InputHero()
+{
+    int i,j;//循环变量
+    int jobChoice;
+    for(i = 0;i < 5;i++)
+    {
+        printf("请输入第%d位英雄的信息：\n",i+1);
+        heros[i].id = i + 1;
+        printf("名称：");
+        heros[i].name = (char*)malloc(5);
+        scanf("%s",heros[i].name);
+        printf("性别：");
+        //heros[i].sex = (char*)malloc(5);
+        //scanf("%s",heros[i].sex);
+
+        scanf("%s",&heros[i].sex);
+        //printf("\n%s\t%c",heros[i].name,heros[i].sex);
+        fflush(stdin);//良好的习惯，录入字符后记得清空缓冲区
+        //良好的习惯，设定一个职业数组，让用户选择即可
+
+        for(j = 0;j < 5;j++)
+        {
+            printf("%d-%s\n",jobs[j].id,jobs[j].name);
+        }
+        printf("请选择职业：(1-5之间的整数)");
+        scanf("%d",&jobChoice);
+        heros[i].job = jobs[jobChoice - 1];
+        printf("%s当前的职业《%s》\n",heros[i].name,heros[i].job.name);
+
+    }
+}
