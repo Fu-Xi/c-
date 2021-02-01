@@ -1,0 +1,58 @@
+                                                              Hero.h
+#ifndef HERO_H_INCLUDED
+#define HERO_H_INCLUDED
+
+typedef struct _myTime
+{
+    int year;
+    int month;
+    int day;
+}MyTime;
+
+typedef struct _hero
+{
+    char name[50];    //英雄名称
+    char sex;         //英雄性别
+    char job[20];     //英雄职业
+    int life;         //英雄生命值
+    double speed;     //英雄攻击速度
+    char ability[20]; //英雄能力
+    MyTime pubTime;   //英雄上线时间
+}Hero;
+
+void ShowHero();
+
+#endif // HERO_H_INCLUDED                                                              
+                                                              main.c
+#include <stdio.h>
+#include <stdlib.h>
+#include "Hero.h"
+
+//extern Hero heros[100];
+
+int main()
+{
+    ShowHero();
+    return 0;
+}
+                                                              Hero.c
+#include "Hero.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+Hero heros[] = {
+    {"影流之主劫",'M',"刺客",579,0.644,"位移",{2012,8,15}},
+    {"清瑟仙女娑娜",'F',"法师",482,0.644,"减速、治疗",{2010,9,20}},
+    {"疾风剑豪",'M',"战士",517,0.67,"护盾、位移",{2013,12,23}}
+};
+
+void ShowHero()
+{
+    int i;//循环变量
+    //若何知道结构数组的大小
+    int len = sizeof(heros) / sizeof(Hero);
+    for(i = 0;i < len;i++)
+    {
+        printf("%s\t%s\t%d-%d-%d\n",heros[i].name,heros[i].job,heros[i].pubTime.year,heros[i].pubTime.month,heros[i].pubTime.day);
+    }
+}                                                              
