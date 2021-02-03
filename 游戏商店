@@ -1,0 +1,196 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*商品结构*/
+typedef struct _prop
+{
+    int id;       //道具的唯一编号
+    char name[50];//道具名称
+    double price; //道具价格
+    int stock;    //库存量：如果在背包中，表示此道具的叠加数量
+    char desc[200];//道具的功能描述
+}Prop;
+/*背包结构*/
+typedef struct _bag
+{
+    int PlayerId; //所属玩家的编号
+    int count;    //当前背包中道具的数量
+    int max;      //当前背包的插槽总数-插槽数量可以让用户用rmb购买
+    Prop prop[8]; //当前背包中的道具数量
+}Bag;
+/*玩家结构*/
+typedef struct _player
+{
+    int id;        //玩家编号
+    char name[50]; //用户名/昵称
+    char pass[50]; //密码
+    Bag bag;       //玩家的背包
+    double gold;  //玩家金币-人性显示：可以将100000铜币转换为银币、金币显示
+    double sysee; //元宝数量
+}Player;
+
+Prop *props;
+Player *players;
+int propsCount = 0;
+int playersCount = 0;
+
+/*函数原型*/
+/**
+*1、初始化数据
+*2、打印这些初始化数据
+*/
+void Init();
+void ShowProps();
+void ShowPlayers();
+/**
+*交易函数
+*参数1：参与交易的玩家指针-为了方便修改玩家交易后的金币数
+*参数2：玩家购买的商品id
+*/
+void Trade(Player *player,int propId);
+
+/**
+*模拟实现道具店购物功能，(商店暂时只支持一种类型的商品)
+*商店具备名称、价格、库存等属性
+*1、玩家选择要购买的道具
+*2、玩家同意交易后扣除相应游戏币
+*3、对应商品库存-1
+*4、玩家背包中增加商品或该商品数量-1
+*/
+
+int main()
+{
+    //1、初始化数据
+    Init();
+    printf("\n*****************交易前*****************\n");
+    //2、打印这些初始化数据
+    ShowProps();
+    ShowPlayers();
+
+    Trade(&players[1],3);
+
+    printf("\n\n*****************交易后*****************\n");
+
+    ShowProps();
+    ShowPlayers();
+
+    return 0;
+}
+
+//1、初始化数据
+void Init()
+{
+    static Prop propArray[] = {
+    {1,"双倍经验卡",3000,10,"双击666"},
+    {2,"腐烂的道袍",5000,10,"只可远观不可亵玩！"},
+    {3,"生锈的铁剑",8000,10,"新手专用"},
+    {4,"无极袍",13000,10,"刀枪不入，水火不侵"},
+    {5,"直升一级丹",83000,10,"字面意思"}
+    };
+    propsCount = sizeof(propArray) / sizeof(Prop);
+    props = propArray;//设定指针的指向
+    static Player playerArray[] = {
+    {1,"白展堂","123456",.gold=5000,.bag.max=8},
+    {2,"郭芙蓉","123456",.gold=15000,.bag.max=8},
+    {3,"吕轻侯","123456",.gold=50000,.bag.max=8},
+    {4,"李秀莲","123456",.gold=115000,.bag.max=8}
+    };
+    playersCount = sizeof(playerArray) / sizeof(Player);
+    players = playerArray;
+}
+
+//2、打印这些初始化数据-函数
+void ShowProps()//打印商城内商品信息
+{
+    int i;//循环变量
+
+    if(props == NULL)
+    {
+        return;
+    }
+    printf("%-7s%-13s%-17s%-10s商品介绍\n","编号","名称","单价","库存");
+    for(i = 0;i < propsCount;i++)
+    {
+        printf("%-7d%-13s%-17.2lf%-10d%s\n",props[i].id,props[i].name,props[i].price,props[i].stock,props[i].desc);
+    }
+}
+
+void ShowPlayers()//打印玩家信息
+{
+    int i,j;
+    if(players == NULL)
+    {
+        return;
+    }
+    printf("%-7s%-13s金币\n","编号","名称");
+    for(i = 0;i < playersCount;i++)
+    {
+        printf("%-7d%-13s%.2lf\n",players[i].id,players[i].name,players[i].gold);
+        for(j = 0;j < players[i].bag.count;j++)
+        {
+            printf("\t%s\t%d\t",players[i].bag.prop[j].name,players[i].bag.prop[j].stock);
+        }
+        printf("\n");
+    }
+}
+/*玩家交易*/
+void Trade(Player *player,int propId)
+{
+    int i;
+    //需要判断：商品的库存，玩家余额够不够，玩家背包空间够不够
+    Prop *tradeProp = NULL;//要购买的商品指针
+    for(i = 0;i < propsCount;i++)
+    {
+        if(propId == props[i].id)
+        {
+            tradeProp = props + i;//tradeProp = &props[i];
+            break;
+        }
+        
+    }
+	if(tradeProp -> stock <= 0)
+    {
+    printf("商品已售空！\n");
+    return;
+    }
+    if(player -> gold < tradeProp->price)
+    {
+        printf("余额不足！\n");
+        return;
+    }
+    if(player -> bag.count >= player->bag.max && player->bag.count != 0)
+    {
+        printf("背包已满！交易失败！\n");
+        return;
+    }
+    //满足交易条件，执行交易的业务操作
+    //1、商品库存-1
+    tradeProp->stock--;
+    //2、玩家金币-商品单价
+    player->gold -= tradeProp->price;
+    //3、玩家背包道具增加
+    //判断玩家背包中是否已有该商品
+    //如果没有该商品，将该商品添加到背包中去即可
+    //如果有该商品，背包中的该商品总数+1
+    for(i = 0;i < player->bag.count;i++)
+    {
+    //如果要够买的商品id和背包中的某个商品id相同
+		if(propId == player->bag.prop[i].id)
+        {
+            player->bag.prop[i].stock++;
+            break;
+        }
+    }
+    if(i == player->bag.count)//如果没有该商品，将该商品添加到背包中去即可
+    {
+		//向背包中创建一个商品-复制一份要交易的商品信息到背包中去
+		int newIndex = player->bag.count;
+		player->bag.prop[newIndex].id = tradeProp->id;
+		player->bag.prop[newIndex].price = tradeProp->price;
+        player->bag.prop[newIndex].stock = 1;
+        strcpy(player->bag.prop[newIndex].name,tradeProp->name);
+        strcpy(player->bag.prop[newIndex].desc,tradeProp->desc);
+        player->bag.count++;
+    }
+}
