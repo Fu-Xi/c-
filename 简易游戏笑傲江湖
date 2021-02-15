@@ -1,0 +1,1054 @@
+                                                                Game.h
+#ifndef GAME_H_INCLUDED
+#define GAME_H_INCLUDED
+
+/*****************************************
+*文件名：Game.h
+*描  述：用来定义游戏的一些核心结构和函数
+*创建人：
+*日  期：2021-02-04
+*版  本：0.1
+*****************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <windows.h>
+
+/******************* 游戏的结构类型定义 *******************/
+//玩家、地图、装备、怪物
+/*游戏地图结构 游戏地图
+  编号、名称、介绍、玩家的进入等级*/
+  typedef struct _map
+  {
+      int id;//地图编号
+      char name[50];//地图名称
+      int minLevel;//玩家进入的最低等级
+      //做表结构
+      COORD coord; //地图的坐标，windows内置坐标结构
+      char desc[500];//地图介绍
+  }Map;
+
+/*武器道具类型枚举 - 武器、道具、消耗品、卡片、碎片*/
+typedef enum _proptype
+{
+   Weapon,Armor,Con,Card,Frag
+}PropType;
+/*游戏道具 - 武器、防具、消耗品、卡片*/
+typedef struct _prop
+{
+    int id;//道具编号
+    char name[50];//道具名称
+    int leve;//道具的级别
+    int stock;//道具的库存或玩家背包中的叠加数量
+    double price;//道具的单价
+    COORD coord;//道具的坐标
+    PropType type;//道具的类型
+    union
+    {//联合-多选一
+        int minAttack;//如果是武器，就对应攻击力
+        int minDefence;//如果是防具，就对应防御力
+        int minPower;//如果是血瓶等消耗品，就对应增加的能量值
+    };
+    union
+    {//联合-多选一
+        int maxAttack;//如果是武器，就对应攻击力
+        int maxDefence;//如果是防具，就对应防御力
+        int maxPower;//如果是血瓶等消耗品，就对应增加的能量值
+    };
+    char desc[200];//道具的功能描述
+}Prop;
+/*门派*/
+typedef struct _martial
+{
+    int id;
+    char name[50];
+    char type[50];   //门派类型-正派/邪派
+    COORD hqCoord;   //门派坐标
+    int isOpen;      //门派是否开放
+    char desc[1000]; //门派描述
+}Martial;
+/*背包*/
+typedef struct _bag
+{
+    int PlayerId;//所属玩家的编号
+    int count;   //当前背包中道具的数量
+    int max;    //当前背包的插槽总数
+    Prop prop[8];//当前背包中的道具数量
+}Bag;
+/*玩家*/
+typedef struct _player
+{
+    int id;
+    char name[50];
+    char pass[50];
+    int life;      //玩家生命值
+    int level;     //玩家级别
+    int exp;       //玩家经验值
+    int hp;        //玩家体力
+    int mp;        //玩家内力值
+    int mpMax;     //当前级别玩家的最大内力值
+    int gold;      //玩家的金币数量
+    COORD coord;     //玩家当前所在地图的坐标
+    Martial martial;//玩家的门派
+    Prop weapon; //玩家装备的武器
+    Prop armor;  //玩家装备的防具
+    Bag bag;     //玩家的背包
+
+}Player;
+/*怪物*/
+typedef struct _monster
+{
+    int id;
+    char name[50];
+    int level;       //怪物的级别
+    int hp;          //怪物的生命值
+    int att;         //怪物的攻击力
+    int def;         //怪物的防御力
+    int minMoney;    //杀死怪物后掉落的最少金币值
+    int maxMoney;
+    int exp;         //杀死怪物后玩家获得经验
+    //扩展：杀死怪物后，玩家可以获得的道具列表
+    int state;       //怪物的当前状态，0-表示怪物已死，非0-表示怪物活着
+    COORD coord;     //怪物的坐标
+}Monster;
+
+void Init();//初始化游戏数据
+void Show();//显示全局数据
+
+/*显示游戏的欢迎信息*/
+void ShowWelcome();
+/*显示游戏地图*/
+void ShowMap();
+/*在信息界面显示当前地图的信息*/
+void ShowMapInfo();
+/*显示游戏地图下方的游戏信息的界面*/
+void ShowInformation();
+/*显示游戏的主菜单*/
+void ShowMainMenu();
+/*接收用户的按键*/
+void GetKey();
+/*在信息界面显示玩家的个人资料*/
+void ShowPlayerInfo();
+/*在信息界面显示当前地图的怪物*/
+void ShowMonsters();
+/*处理游戏主菜单的业务*/
+void ProcessMainMenu(char key);
+/*pk怪物的方法*/
+void Fight(int monsterId);
+/*瞬间移动*/
+void Move(int x,int y);
+/*显示可购买的装备*/
+void ShowProp();
+/*玩家交易*/
+void Trade(int propId);
+/*打开背包*/
+void OpenBackpack(int propsState,int UsePropsIdId);
+/*使用背包内的道具*/
+void UseBagProp(int UseBagProps);
+
+#endif // GAME_H_INCLUDED
+
+
+                                                                Game.c
+/*****************************************
+*文件名：Game.c
+*描  述：实现Game.h中定义的操作函数
+*创建人：
+*日  期：2021-02-04
+*版  本：0.1
+*****************************************/
+#include "Game.h"
+#include "GameLib.h"
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+#include <conio.h>
+#define SEP "------------------------------------------------------------------------------"
+#define COL 78            //游戏界面的总宽度
+#define MARGIN_X 1        //左边距
+#define INFO_START_Y 12   //信息界面开始的Y坐标
+#define INFO_END_Y 19     //信息界面结束的Y坐标
+#define MAP_START_Y 3     //地图开始的Y坐标
+#define MAP_END_Y 11      //地图结束的Y坐标
+#define MAIN_START_Y 20   //主菜单开始的Y坐标
+
+int X = 3,Y = 2;
+
+
+/******************* 游戏的结构类型定义 *******************/
+Martial martials[] = {
+    {1,"少林","正派",.hqCoord.X = 1,.hqCoord.Y = 4,1,"天下武功出少林"},
+    {2,"武当","正派",.hqCoord.X = 3,.hqCoord.Y = 4,1,"天下武功出少林"},
+    {3,"丐帮","正派",.hqCoord.X = 2,.hqCoord.Y = 6,1,"天下武功出少林"},
+    {4,"全真教","正派",.hqCoord.X = 2,.hqCoord.Y = 3,1,"天下武功出少林"},
+    {5,"五岳剑派","正派",.hqCoord.X = 1,.hqCoord.Y = 3,1,"天下武功出少林"},
+    {6,"四川唐门","正派",.hqCoord.X = 2,.hqCoord.Y = 2,1,"天下武功出少林"},
+    {7,"大理段氏","正派",.hqCoord.X = 5,.hqCoord.Y = 1,1,"天下武功出少林"},
+    {8,"天山派","正派",.hqCoord.X = 0,.hqCoord.Y = 0,1,"天下武功出少林"},
+    {9,"古墓派","正派",.hqCoord.X = 3,.hqCoord.Y = 3,1,"天下武功出少林"},
+    {10,"名捕门","正派",.hqCoord.X = 1,.hqCoord.Y = 1,1,"天下武功出少林"},
+    {11,"日月神教","邪派",.hqCoord.X = 6,.hqCoord.Y = 1,1,"天下武功出少林"},
+    {12,"权力帮","邪派",.hqCoord.X = 4,.hqCoord.Y = 0,1,"天下武功出少林"},
+    {13,"五毒教","邪派",.hqCoord.X = 2,.hqCoord.Y = 0,1,"天下武功出少林"},
+    {14,"神龙教","邪派",.hqCoord.X = 2,.hqCoord.Y = 7,1,"天下武功出少林"},
+    {15,"青龙会","邪派",.hqCoord.X = 5,.hqCoord.Y = 6,1,"天下武功出少林"},
+    {16,"桃花岛","亦正亦邪",.hqCoord.X = 4,.hqCoord.Y = 7,1,"天下武功出少林"},
+    {17,"锦衣卫","亦正亦邪",.hqCoord.X = 1,.hqCoord.Y = 5,1,"天下武功出少林"},
+    {18,"血河派","亦正亦邪",.hqCoord.X = 5,.hqCoord.Y = 0,1,"天下武功出少林"},
+    {19,"通通吃","亦正亦邪",.hqCoord.X = 7,.hqCoord.Y = 3,1,"天下武功出少林"},
+    {20,"玩偶山庄","亦正亦邪",.hqCoord.X = 0,.hqCoord.Y = 6,1,"天下武功出少林"}
+
+};
+
+static Player players[] = {
+    {9527,"唐伯虎","bohu.tang",100,1,1,10000,100000,100000,999999,.coord.X = 3,.coord.Y = 1}
+};
+
+static Monster monsterArray[] = {
+    {1,"海绵宝宝",1,100,5,2,20,30,5,1,{0,0}},
+    {2,"派大星",2,100,5,2,20,30,5,1,{0,0}},
+    {3,"章鱼哥",2,100,5,2,20,30,5,1,{0,0}},
+    {4,"蟹老板",3,100,5,2,20,30,5,1,{0,0}},
+    {5,"皮拉板",4,100,5,2,20,30,5,1,{0,0}},
+    {6,"水母",6,100,5,2,20,30,5,1,{0,0}},
+    {7,"鸡你太美",9,100,5,2,20,30,5,1,{0,0}},
+    {8,"小猪熊",6,100,5,2,20,30,5,1,{0,0}},
+    {9,"天线宝宝",9,100,5,2,20,30,5,1,{0,0}},
+    {10,"蟹黄堡",1,100,5,2,20,30,5,1,{1,6}},
+    {11,"嘴锅",2,100,5,2,20,30,5,1,{1,6}},
+    {12,"肥乞丐",2,100,5,2,20,30,5,1,{1,6}},
+    {13,"葛三叔",3,100,5,2,20,30,5,1,{1,6}},
+    {14,"雌雄双煞",4,100,5,2,20,30,5,1,{1,6}},
+    {15,"江大道",6,100,5,2,20,30,5,1,{1,6}},
+    {16,"姬无命",9,100,5,2,20,30,5,1,{1,6}},
+    {17,"金银二老",6,100,5,2,20,30,5,1,{1,6}},
+    {18,"姬无病",9,100,5,2,20,30,5,1,{1,6}}
+
+};
+
+static Prop propArray[] = {
+    {1,"一字长蛇剑",1,5,5000,{1,6},Weapon,.minAttack=1,.maxAttack=5,"犹如巨蟒出击，攻击凌厉！"},
+    {2,"二龙汲水珠",2,5,5000,{1,6},Weapon,.minAttack=1,.maxAttack=5,"高度的灵活性，玄妙无比！"},
+    {3,"三叉海神戟",3,5,5000,{1,6},Weapon,.minAttack=1,.maxAttack=5,"重达十万八千斤，威力无穷！"},
+    {4,"四方苦禅杖",4,5,5000,{1,6},Weapon,.minAttack=1,.maxAttack=5,"极度彰显了少林作为中原武林第一大派和佛门贵地的崇高地位。"},
+    {5,"五虎攒羊锤",5,5,5000,{1,6},Weapon,.minAttack=1,.maxAttack=5,"唯有能与元素沟通的人可以唤醒他的真正力量。"},
+    {6,"六合迎风枪",6,5,5000,{1,6},Weapon,.minAttack=1,.maxAttack=5,"当年兵器谱排名第二，第一是小李他妈的飞刀！"},
+    {7,"七星斩将矛",7,5,5000,{1,6},Weapon,.minAttack=1,.maxAttack=5,"矛尖犹如白蛇吐信，是令敌将闻风丧胆的象征！"},
+    {8,"八卦金锁鞭",8,5,5000,{1,6},Weapon,.minAttack=1,.maxAttack=5,"打在身上，仿佛幻影涰连，遮日避天！"},
+    {9,"九转乾坤圈",9,5,5000,{1,6},Weapon,.minAttack=10,.maxAttack=15,"金色镯子，可翻江倒海，震荡乾坤！"},
+    {10,"辟邪犀",9,5,10000,{0,0},Armor,.minDefence=2,.maxDefence=6,"一块能解天下百毒的玉佩。"},
+    {11,"乌蚕裙",9,5,10000,{0,0},Armor,.minDefence=2,.maxDefence=6,"极其坚韧，刀枪不入，水火不侵！"},
+    {12,"英姿带",9,5,10000,{0,0},Armor,.minDefence=2,.maxDefence=6,"穿后精气饱满，神采飞扬，姿态英勇威风！"},
+    {13,"天罡指",9,5,10000,{0,0},Armor,.minDefence=2,.maxDefence=6,"飘忽不定，防东西至，防西东至！"},
+    {14,"紫鲛衫",9,5,10000,{0,0},Armor,.minDefence=2,.maxDefence=6,"海蛟皮制成，装备后可在水下呼吸！"},
+    {15,"碧麟披",9,5,10000,{0,0},Armor,.minDefence=2,.maxDefence=6,"上撰：上古南火朱雀之子，曾云字！"},
+    {16,"金刚罩",9,5,10000,{0,0},Armor,.minDefence=2,.maxDefence=6,"装备后有如金铸之钟覆盖全身，刀剑难损!"},
+    {17,"防弹衣",9,5,10000,{0,0},Armor,.minDefence=2,.maxDefence=6,"闯荡武林，居家必备！"},
+    {18,"软猬甲",9,5,10000,{0,0},Armor,.minDefence=2,.maxDefence=6,"刀枪不入可保暖，穿在身上，妙用无穷。桃花岛的镇导之宝！"},
+    {19,"回复奶瓶（大）",3,5,500,{0,1},Con,.minPower=300,.maxPower=500,"最高一次性回复500点内力值！"}
+};
+Map mapArray[8][8] = {
+    {
+        {1,"天山",1,{0,0},"这里充满了西域文化！"},
+        {1,"楼兰",1,{1,0},"这里充满了西域文化！"},
+        {1,"白驼山",1,{2,0},"这里充满了西域文化！"},
+        {1,"野猪林",1,{3,0},"这里充满了西域文化！"},
+        {1,"水晶洞",1,{4,0},"这里充满了西域文化！"},
+        {1,"天蚕洞",1,{5,0},"这里充满了西域文化！"},
+        {1,"黑风寨",1,{6,0},"这里充满了西域文化！"},
+        {1,"冰火岛",1,{7,0},"这里充满了西域文化！"}
+    },
+    {
+        {1,"迷宫",1,{0,1},"这里充满了西域文化！"},
+        {1,"凌霄城",1,{1,1},"这里充满了西域文化！"},
+        {1,"轩辕岭",1,{2,1},"这里充满了西域文化！"},
+        {1,"华山",1,{3,1},"这里充满了西域文化！"},
+        {1,"嵩山",1,{4,1},"这里充满了西域文化！"},
+        {1,"紫禁城",1,{5,1},"这里充满了西域文化！"},
+        {1,"快活林",1,{6,1},"这里充满了西域文化！"},
+        {1,"神龙岛",1,{7,1},"这里充满了西域文化！"}
+    },
+    {
+        {1,"西域",1,{0,2},"这里充满了西域文化！"}
+        ,{1,"葫芦谷",1,{1,2},"这里充满了西域文化！"},
+        {1,"唐门",1,{2,2},"这里充满了西域文化！"},
+        {1,"终南山",1,{3,2},"这里充满了西域文化！"},
+        {1,"石窟",1,{4,2},"这里充满了西域文化！"},
+        {1,"客栈",1,{5,2},"这里充满了西域文化！"},
+        {1,"玉皇顶",1,{6,2},"这里充满了西域文化！"},
+        {1,"灵蛇岛",1,{7,2},"这里充满了西域文化！"},
+    },
+    {
+        {1,"光明顶",1,{0,3},"这里充满了西域文化！"},
+        {1,"摩天崖",1,{1,3},"这里充满了西域文化！"},
+        {1,"聚贤庄",1,{2,3},"这里充满了西域文化！"},
+        {1,"后山",1,{3,3},"这里充满了西域文化！"},
+        {1,"武当山",1,{4,3},"这里充满了西域文化！"},
+        {1,"开封府",1,{5,3},"这里充满了西域文化！"},
+        {1,"二十四桥",1,{6,3},"这里充满了西域文化！"},
+        {1,"蓬莱仙境",1,{7,3},"这里充满了西域文化！"}
+    },
+    {
+        {1,"擂鼓山",1,{0,4},"这里充满了西域文化！"},
+        {1,"峨眉山",1,{1,4},"这里充满了西域文化！"},
+        {1,"迷踪林",1,{2,4},"这里充满了西域文化！"},
+        {1,"五虎岭",1,{3,4},"这里充满了西域文化！"},
+        {1,"天宁寺",1,{4,4},"这里充满了西域文化！"},
+        {1,"积善堂",1,{5,4},"这里充满了西域文化！"},
+        {1,"镇江府",1,{6,4},"这里充满了西域文化！"},
+        {1,"桃花岛",1,{7,4},"这里充满了西域文化！"}
+    },
+    {
+        {1,"恶人谷",1,{0,5},"这里充满了西域文化！"},
+        {1,"大理",1,{1,5},"这里充满了西域文化！"},
+        {1,"百花谷",1,{2,5},"这里充满了西域文化！"},
+        {1,"孔雀山庄",1,{3,5},"这里充满了西域文化！"},
+        {1,"五霸岗",1,{4,5},"这里充满了西域文化！"},
+        {1,"万仞堂",1,{5,5},"这里充满了西域文化！"},
+        {1,"千年古刹",1,{6,5},"这里充满了西域文化！"},
+        {1,"六合塔",1,{7,5},"这里充满了西域文化！"}
+    },
+    {
+        {1,"玩偶庄",1,{0,6},"这里充满了西域文化！"},
+        {1,"黑木崖",1,{1,6},"这里充满了西域文化！"},
+        {1,"蝴蝶谷",1,{2,6},"这里充满了西域文化！"},
+        {1,"铁花堡",1,{3,6},"这里充满了西域文化！"},
+        {1,"霹雳堂",1,{4,6},"这里充满了西域文化！"},
+        {1,"天地庙",1,{5,6},"这里充满了西域文化！"},
+        {1,"麒麟庄",1,{6,6},"这里充满了西域文化！"},
+        {1,"镇魂宫",1,{7,6},"这里充满了西域文化！"}
+    },
+    {
+        {1,"石府",1,{0,7},"这里充满了西域文化！"},
+        {1,"金三角",1,{1,7},"这里充满了西域文化！"},
+        {1,"忏悔崖",1,{2,7},"这里充满了西域文化！"},
+        {1,"通吃岛",1,{3,7},"这里充满了西域文化！"},
+        {1,"通天观",1,{4,7},"这里充满了西域文化！"},
+        {1,"紫霞亭",1,{5,7},"这里充满了西域文化！"},
+        {1,"天弃庵",1,{6,7},"这里充满了西域文化！"},
+        {1,"侠客岛",1,{7,7},"这里充满了西域文化！"}
+    }
+};
+
+Player *currPlayer;//玩家
+int propCount = sizeof(propArray) / sizeof(Prop);
+
+void Init()//初始化游戏数据
+{
+    //设置当前登录玩家为玩家1
+    currPlayer = &players[0];
+    currPlayer->weapon = propArray[2];//初始武器
+    currPlayer->armor = propArray[10];//初始防具
+    currPlayer->martial = martials[10];//门派
+    //装备
+    currPlayer->bag.max = 8;
+}
+/*
+void Show()//显示全局数据
+{
+    int i,j;
+    int propCount = sizeof(propArray) / sizeof(Prop);
+    for(i = 0;i < propCount;i++)
+    {
+        printf("%d\t%s\t%.0lf\n",propArray[i].id,propArray[i].name,propArray[i].price);
+        switch(propArray[i].type)
+        {
+        case Weapon://武器类型
+            printf("最小攻击力：%d\t最大攻击力：%d\n",propArray[i].minAttack,propArray[i].maxAttack);
+            break;
+        case Armor:
+            printf("最小防御力：%d\t最大防御力：%d\n",propArray[i].minDefence,propArray[i].maxDefence);
+            break;
+        case Con:
+            printf("最小能量值：%d\t最大能量值：%d\n",propArray[i].minPower,propArray[i].maxPower);
+            break;
+        }
+    }
+
+    printf("\n打印地图信息\n");
+
+    for(i = 0;i < 8;i++)
+    {
+        SetPosition(MARGIN_X-1,i+3);
+        printf("|");
+        SetPosition(5,i+3);
+        for(j = 0;j < 8;j++)
+        {
+            printf("%-9s",mapArray[i][j].name);
+        }
+        SetPosition(COL+1,i+3);
+        printf("|");
+
+        printf("\n");
+    }
+    SetPosition(MARGIN_X,MAP_END_Y);
+    printf("%s",SEP);
+
+}
+*/
+
+/*显示游戏的欢迎信息*/
+void ShowWelcome()
+{
+    SetPosition(MARGIN_X,0);
+    printf("%s",SEP);
+    SetPosition(MARGIN_X-1,1);
+    printf("|");
+    SetPosition(28,1);
+    printf("欢迎来到笑傲江湖的世界！");
+    SetPosition(MARGIN_X + COL,1);
+    printf("|");
+    SetPosition(MARGIN_X,2);
+    printf("%s",SEP);
+}
+/*显示游戏地图*/
+void ShowMap()
+{
+    //要根据当前玩家的坐标来显示地图的文字
+    int i,j;
+    for(i = 0;i < 8;i++)
+    {
+        SetPosition(MARGIN_X-1,i+MAP_START_Y);
+        printf("|");
+        SetPosition(5,i+MAP_START_Y);
+        for(j = 0;j < 8;j++)
+        {
+            if(i == Y && j == X)
+            {
+                //更改地图文字的颜色和背景色
+                SetColor(5,15);
+            }
+            printf("%-9s",mapArray[i][j].name);
+            SetColor(14,1);//打印完特殊地图后，将颜色变回默认颜色
+        }
+        SetPosition(COL+1,i+MAP_START_Y);
+        printf("|");
+
+        printf("\n");
+    }
+    SetPosition(MARGIN_X,MAP_END_Y);
+    printf("%s",SEP);
+    ShowMapInfo();
+
+}
+/*在信息界面显示当前地图的信息*/
+void ShowMapInfo()
+{
+    //清除信息窗的信息
+    clear(MARGIN_X,INFO_START_Y,7);
+    //显示当前玩家所在地图的信息
+    SetPosition(MARGIN_X+26,INFO_START_Y);
+    printf("当前玩家所在地图：《%s》",mapArray[Y][X].name);
+    SetPosition(MARGIN_X+10,INFO_START_Y+1);
+    //需要控制文字显示的行
+    char *desc = mapArray[Y][X].desc;
+    int descLen = strlen(desc);
+    int i;
+    for(i = 0;i < descLen;i++)
+    {
+        if(i != 0 && i % 60 == 0)//控制此行只能打印60个中文字符
+        {
+            SetPosition(MARGIN_X+10,INFO_START_Y+1+i/60);
+        }
+        printf("%c",desc[i]);
+    }
+}
+/*显示游戏地图下方的游戏信息的界面*/
+void ShowInformation()
+{
+    //信息窗口一共有7行
+    SetPosition(MARGIN_X,INFO_START_Y);
+    int i;
+    for(i = 0;i < 7;i++)
+    {
+        SetPosition(MARGIN_X-1,INFO_START_Y+i);
+        printf("|");
+        SetPosition(COL+1,INFO_START_Y+i);
+        printf("|");
+    }
+    SetPosition(MARGIN_X,INFO_START_Y+7);
+    printf("%s",SEP);
+}
+/*显示游戏的主菜单*/
+void ShowMainMenu()
+{
+    SetPosition(MARGIN_X,MAIN_START_Y);
+    printf("游戏菜单：");
+    SetPosition(MARGIN_X,MAIN_START_Y+1);
+    printf("1、自我欣赏");
+    SetPosition(MARGIN_X,MAIN_START_Y+2);
+    printf("2、查找怪物");
+    SetPosition(MARGIN_X,MAIN_START_Y+3);
+    printf("3、回总舵");
+    SetPosition(MARGIN_X,MAIN_START_Y+4);
+    printf("4、购买装备");
+    SetPosition(MARGIN_X,MAIN_START_Y+5);
+    printf("5、打开背包");
+}
+/*接收用户的按键*/
+void GetKey()
+{
+    char key; //接收到的用户按键
+    while(1)
+    {
+        fflush(stdin);
+        key = getch();
+        fflush(stdin);
+        if(key == '1' || key == '2' || key == '3' || key == '4' || key == '5')
+        {
+            //printf("1-5之间的游戏菜单");
+            ProcessMainMenu(key);//通过函数去处理用户的菜单选项
+            continue;
+        }
+        else if(key == VK_UP || key == 72)//用户按了上键（38）
+        {
+            Y--;
+        }
+        else if(key == VK_RIGHT || key == 77)//右（39）
+        {
+            X++;
+        }
+        else if(key == VK_DOWN || key == 80)//下（40）
+        {
+            Y++;
+        }
+        else if(key == VK_LEFT || key == 75)//左（37）
+        {
+            X--;
+        }
+        if(X > 7) X = 0;
+        if(X < 0) X = 7;
+        if(Y > 7) Y = 0;
+        if(Y < 0) Y = 7;
+        ShowMap();//重新显示地图
+    }
+}
+/*在信息界面显示玩家的个人资料*/
+void ShowPlayerInfo()
+{
+    //清除信息窗的信息
+    clear(MARGIN_X,INFO_START_Y,7);
+    SetPosition(MARGIN_X+24,INFO_START_Y);
+    printf("大侠《%s》的个人资料如下：",currPlayer->name);
+    SetPosition(MARGIN_X+10,INFO_START_Y+1);
+    printf("等级：%-3d血量：%-7d内力：%-7d经验：%-4d金币：%d",currPlayer->level,currPlayer->hp,currPlayer->mp,currPlayer->exp,currPlayer->gold);
+    SetPosition(MARGIN_X+10,INFO_START_Y+2);
+    printf("当前武器：%s(攻击%d/%d)  ",currPlayer->weapon.name,currPlayer->weapon.minAttack,currPlayer->weapon.maxAttack);
+    //下面可以自行显示玩家的其它信息及背包信息
+    printf("当前防具：%s(防御%d/%d)",currPlayer->armor.name,currPlayer->armor.minDefence,currPlayer->armor.maxDefence);
+}
+/*在信息界面显示当前地图的怪物*/
+void ShowMonsters()
+{
+    char levelNames[9][10] = {"乳臭未干","初出茅庐","粗通皮毛","青年才俊","略有小成","心领神会","出类拔萃","所向无敌","天人合一"};
+    //清除信息窗的信息
+    clear(MARGIN_X,INFO_START_Y,7);
+    SetPosition(MARGIN_X+10,INFO_START_Y);
+    //怪物总数
+    int monsterCount = sizeof(monsterArray) / sizeof(Monster);
+    //当前地图怪物下标数组
+    int monsterIndexs[9];
+    int currMapMonsterCount = 0;//当前地图的怪物总数
+    int i;
+    for(i = 0;i < monsterCount;i++)
+    {
+        if(monsterArray[i].coord.X == X && monsterArray[i].coord.Y == Y && monsterArray[i].state != 0)
+        {
+            monsterIndexs[currMapMonsterCount++] = i;
+            if(currMapMonsterCount == 9)
+            {
+                break;
+            }
+        }
+    }
+    //打印怪物
+    SetPosition(MARGIN_X+27,INFO_START_Y);
+    if(currMapMonsterCount == 0)
+    {
+        SetPosition(MARGIN_X+24,INFO_START_Y);
+        printf("鸟不拉屎的地方，怪物都不想呆！");
+        return;
+    }
+    printf("当前地图出现如下怪物：");
+
+    SetPosition(MARGIN_X+4,INFO_START_Y+2);
+    for(i = 0;i < currMapMonsterCount;i++)
+    {
+        if(i != 0 && i % 3 == 0)
+        {
+            SetPosition(MARGIN_X+4,INFO_START_Y+2+i/3);
+        }
+        printf("%d.%s(%s)\t",monsterArray[monsterIndexs[i]].id,monsterArray[monsterIndexs[i]].name,levelNames[monsterArray[monsterIndexs[i]].level-1]);
+    }
+    //下面就是让玩家选择要PK的怪物编号，调用Fight函数
+    SetPosition(MARGIN_X+4,INFO_END_Y-1);
+    int pkMonsterId;
+    printf("请输入要攻击的对象：(返回0)");
+    scanf("%d",&pkMonsterId);
+
+    Fight(pkMonsterId);
+}
+/*pk怪物的方法*/
+void Fight(int monsterId)
+{
+    srand(time(NULL));
+    //要先验证玩家pk的怪物编号是否存在
+    int monsterIndex = -1;//要查找的怪物下标
+    int i;
+    int fightCount;//pk的轮数
+    if(monsterId == 0)
+    {
+        return;
+    }
+    for(i = 0;i < sizeof(monsterArray) / sizeof(Monster);i++)
+    {
+        if(monsterId == monsterArray[i].id)
+        {
+            if(monsterArray[i].state == 0)
+            {
+                /*
+                SetPosition(MARGIN_X+4,INFO_END_Y-1);
+                printf("                                              ");
+                SetPosition(MARGIN_X+4,INFO_END_Y-1);
+                printf("怪物已被杀死！");
+                return;
+                */
+                break;
+            }
+            monsterIndex = i;
+            break;
+        }
+    }
+    if(monsterArray[monsterIndex].coord.X != X || monsterArray[monsterIndex].coord.Y != Y)
+    {
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("                                              ");
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("怪物不存在！");
+        return;
+    }
+    SetPosition(MARGIN_X+4,INFO_END_Y-1);
+    printf("                                              ");
+    if(monsterIndex == -1)//没有找到要pk的怪物
+    {
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("要PK的怪物不存在，请按任意键继续！");
+        return;
+    }
+    //如果怪物存在
+
+    while(1)
+    {
+        //玩家和怪物互殴
+        int playerAttack = rand() % (currPlayer->weapon.maxAttack - currPlayer->weapon.minAttack) + currPlayer->weapon.minAttack;
+        int playerDefense = rand() % (currPlayer->armor.maxDefence - currPlayer->armor.minDefence) + currPlayer->armor.minDefence;
+        int shangHai = monsterArray[monsterIndex].att;
+        monsterArray[monsterIndex].hp -= playerAttack;
+        if(monsterArray[monsterIndex].hp <= 0)
+        {
+            break;//退出pk过程
+        }
+        if(playerDefense >= monsterArray[monsterIndex].att)
+        {
+            shangHai = 0;
+        }
+        if(playerDefense < monsterArray[monsterIndex].att)
+        {
+            shangHai -= playerDefense;
+        }
+        currPlayer->hp -= shangHai;
+        if(currPlayer->hp <= 0)
+        {
+            break;
+        }
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("                                              ");
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        fightCount++;
+        printf("战斗第%d轮 %sATT：%d  HP：%d   %sATT：%d  HP：%d",fightCount,currPlayer->name,playerAttack,currPlayer->hp,monsterArray[monsterIndex].name,shangHai,monsterArray[monsterIndex].hp);
+        usleep(1000 * 200);
+    }
+    SetPosition(MARGIN_X+4,INFO_END_Y-1);
+    printf("                                              ");
+    if(currPlayer->hp <= 0)
+    {
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("江湖快讯：大侠《%s》在与《%s》的战斗中壮烈牺牲！按任意键继续",currPlayer->name,monsterArray[monsterIndex].name);
+        currPlayer->hp = 100;
+        return;
+    }
+    int monsterMoney = rand() % (monsterArray[monsterIndex].maxMoney - monsterArray[monsterIndex].minMoney) + monsterArray[monsterIndex].minMoney;
+    SetPosition(MARGIN_X+3,INFO_END_Y-1);
+    printf("经过艰苦的战斗，《%s》被您杀死，获得%d的经验，%d的金币！",monsterArray[monsterIndex].name,monsterArray[monsterIndex].exp,monsterMoney);
+    currPlayer->exp += monsterArray[monsterIndex].exp;
+    currPlayer->gold += monsterMoney;
+    monsterArray[monsterIndex].state--;
+    ShowMonsters();
+
+}
+/*瞬间移动*/
+void Move(int x,int y)
+{
+    Y = x;
+    X = y;
+    ShowMap();
+}
+/*显示可购买的装备*/
+void ShowProp()
+{
+    int i;
+    int currPlayerPropCount = 0;
+    int propIndex[9];
+    clear(MARGIN_X,INFO_START_Y,7);
+    if(propArray == NULL)
+    {
+        return;
+    }
+    SetPosition(MARGIN_X+4,INFO_START_Y);
+    printf("商品：");
+    SetPosition(MARGIN_X+4,INFO_START_Y+1);
+    //记录对应地图坐标的装备编号
+    for(i = 0;i < propCount;i++)
+    {
+        if(propArray[i].coord.X == X && propArray[i].coord.Y == Y)
+        {
+            propIndex[currPlayerPropCount++] = i;
+            if(currPlayerPropCount == 9)
+            {
+                break;
+            }
+        }
+    }
+    //打印商品
+    if(currPlayerPropCount == 0)
+    {
+        SetPosition(MARGIN_X+4,INFO_START_Y);
+        printf("此处暂无商品出售！");
+        return;
+    }
+    SetPosition(MARGIN_X+4,INFO_START_Y);
+    printf("商品：");
+    SetPosition(MARGIN_X+4,INFO_START_Y+2);
+    for(i = 0;i < currPlayerPropCount;i++)
+    {
+        if(i != 0 && i % 3 == 0)
+        {
+            SetPosition(MARGIN_X+4,INFO_START_Y+2+i/3);
+        }
+        printf("%d.%s(%d)  ",propArray[propIndex[i]].id,propArray[propIndex[i]].name,propArray[propIndex[i]].stock);
+    }
+    SetPosition(MARGIN_X+4,INFO_END_Y-1);
+    int propShoppingId = -1;
+    printf("请输入要购买的物品：(返回0)");
+    scanf("%d",&propShoppingId);
+    Trade(propShoppingId);
+}
+/*玩家交易*/
+void Trade(int propId)
+{
+    int i;
+    int shoppingId = -1;
+    //Prop *tradeProp = NULL;
+    if(propId == 0)
+    {
+        return;
+    }
+    for(i = 0;i < propCount;i++)
+    {
+        if(propId == propArray[i].id)
+        {
+            if(propArray[i].coord.X != X || propArray[i].coord.Y != Y)
+            {
+                SetPosition(MARGIN_X+4,INFO_END_Y-1);
+                printf("                                              ");
+                SetPosition(MARGIN_X+4,INFO_END_Y-1);
+                printf("该商品不在该地图售卖！");
+                return;
+            }
+            shoppingId = i;
+            break;
+        }
+    }
+    if(propArray[shoppingId].stock <= 0)
+    {
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("                                              ");
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("商品已售空！");
+        return;
+    }
+    if(currPlayer->gold < propArray[shoppingId].price)
+    {
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("                                              ");
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("余额不足！");
+        return;
+    }
+    if(shoppingId == -1)
+    {
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("                                              ");
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("要购买的商品不存在！");
+        return;
+    }
+    if(currPlayer->bag.count >= currPlayer->bag.max && currPlayer->bag.count != 0)
+    {
+        for(i = 0;i < currPlayer->bag.count;i++)
+        {
+            if(propArray[shoppingId].id == currPlayer->bag.prop[i].id)
+            {
+                break;
+            }
+        }
+        if(i == currPlayer->bag.count)
+        {
+            SetPosition(MARGIN_X+4,INFO_END_Y-1);
+            printf("                                              ");
+            SetPosition(MARGIN_X+4,INFO_END_Y-1);
+            printf("背包已满！");
+            return;
+        }
+    }
+
+    //满足交易条件，执行交易的业务操作
+    //1、商品库存-1
+    propArray[shoppingId].stock--;
+    //2、玩家金币-商品单价
+    currPlayer->gold -= propArray[shoppingId].price;
+    //3、玩家背包道具增加
+    //判断玩家背包中是否已有该商品
+    //如果没有该商品，将该商品添加到背包中去即可
+    //如果有该商品，背包中的该商品总数+1
+    for(i = 0;i < currPlayer->bag.count;i++)
+    {
+        //如果要够买的商品id和背包中的某个商品id相同
+        if(propId == currPlayer->bag.prop[i].id)
+        {
+            currPlayer->bag.prop[i].stock++;
+            break;
+        }
+    }
+    //如果没有该商品，将该商品添加到背包中去即可
+    if(i >= currPlayer->bag.count)
+    {
+        //向背包中创建一个商品-复制一份要交易的商品信息到背包中去
+        int newIndex = currPlayer->bag.count;
+        currPlayer->bag.prop[newIndex] = propArray[shoppingId];
+        currPlayer->bag.prop[newIndex].stock = 1;
+        currPlayer->bag.count++;
+    }
+    ShowProp();
+}
+/*打开背包*/
+void OpenBackpack(int propsState,int UsePropsIdId)
+{
+    int i;
+    clear(MARGIN_X,INFO_START_Y,7);
+    if(propsState != 0)
+    {
+        if(currPlayer->bag.prop[UsePropsIdId].stock > 1)
+        {
+            currPlayer->bag.prop[UsePropsIdId].stock--;
+            return;
+        }
+        for(i = 0;i < currPlayer->bag.count - UsePropsIdId;i++)
+        {
+            currPlayer->bag.prop[UsePropsIdId+i] = currPlayer->bag.prop[UsePropsIdId+1+i];
+        }
+        currPlayer->bag.count--;
+    }
+    SetPosition(MARGIN_X+4,INFO_START_Y);
+    printf("背包");
+    SetPosition(MARGIN_X+4,INFO_START_Y+1);
+    for(i = 0;i < currPlayer->bag.count;i++)
+    {
+        if(i != 0 && i % 3 == 0)
+        {
+            SetPosition(MARGIN_X+4,INFO_START_Y+1+i/3);
+        }
+        printf("%d.%s(%d)  ",currPlayer->bag.prop[i].id,currPlayer->bag.prop[i].name,currPlayer->bag.prop[i].stock);
+    }
+    int UsePropId;//要使用的物品的编号
+    SetPosition(MARGIN_X+4,INFO_END_Y-1);
+    printf("请输入要使用的物品：(返回0)");
+    scanf("%d",&UsePropId);
+    UseBagProp(UsePropId);
+}
+/*使用背包内的道具*/
+void UseBagProp(int UseBagProps)
+{
+    srand(time(NULL));
+    int i;
+    int propState = 0;//判断背包内的装备的交易状态 0-未使用
+    int UsePropsId = -1;//记录要使用的背包道具在背包的位置（从0开始）
+    if(UseBagProps == 0)
+    {
+        return;
+    }
+    for(i = 0;i < currPlayer->bag.count;i++)
+    {
+        if(UseBagProps == currPlayer->bag.prop[i].id)
+        {
+            UsePropsId = i;
+            break;
+        }
+    }
+    if(i == currPlayer->bag.count)
+    {
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("                                              ");
+        SetPosition(MARGIN_X+4,INFO_END_Y-1);
+        printf("所选道具背包中不存在！");
+        return;
+    }
+    if(currPlayer->bag.prop[UsePropsId].type == Weapon)
+    {
+        currPlayer->weapon = currPlayer->bag.prop[UsePropsId];
+        propState++;
+    }
+    if(currPlayer->bag.prop[UsePropsId].type == Armor)
+    {
+        currPlayer->armor = currPlayer->bag.prop[UsePropsId];
+        propState++;
+    }
+    if(currPlayer->bag.prop[UsePropsId].type == Con)
+    {
+        currPlayer->hp += rand() % (currPlayer->bag.prop[UsePropsId].maxPower - currPlayer->bag.prop[UsePropsId].minPower) + currPlayer->bag.prop[UsePropsId].minPower;
+        propState++;
+    }
+    OpenBackpack(propState,UsePropsId);
+}
+/*处理游戏主菜单的业务*/
+void ProcessMainMenu(char key)
+{
+    switch(key)
+    {
+    case '1'://自我欣赏
+        ShowPlayerInfo();
+        break;
+    case '2'://查找怪物
+        ShowMonsters();
+        break;
+    case '3'://回总舵
+        Move(currPlayer->martial.hqCoord.X,currPlayer->martial.hqCoord.Y);
+        break;
+    case '4'://购买装备
+        ShowProp();
+        break;
+    case '5'://打开背包
+        OpenBackpack(0,-1);
+        break;
+    }
+
+}
+
+
+                                                                GameLib.h
+#ifndef GAMELIB_H_INCLUDED
+#define GAMELIB_H_INCLUDED
+
+/*****************************************
+*文件名：GameLib.h
+*描  述：用来定义游戏中常用的系统操作（更改文字颜色、清屏等）
+*创建人：
+*日  期：2021-02-05
+*版  本：0.1
+*****************************************/
+#include <stdio.h>
+#include <windows.h>
+/******************* 游戏的结构类型定义 *******************/
+
+/*设置控制台窗口的标题*/
+void SetTitle(char *title);
+/*设置文字的前景色和背景色*/
+/* 0-黑色，1-蓝色，  2-绿色，   3-浅绿色，   4-红色，   5-紫色，   6-黄色，   7-白色，
+ * 8-灰色，9-浅蓝色，10-淡绿色，11-淡浅绿色，12-淡红色，13-淡紫色，14-淡黄色，15-亮白色
+ */
+void SetColor(int foreColor,int backColor);
+/*设置光标的位置*/
+void SetPosition(int x,int y);
+/*从x，y坐标开始，清rowCount行*/
+void clear(int x,int y,int rowCount);
+
+
+#endif // GAMELIB_H_INCLUDED
+
+
+                                                                GameLib.c
+/*****************************************
+*文件名：GameLib.c
+*描  述：实现GameLib.h中定义的操作函数
+*创建人：
+*日  期：2021-02-05
+*版  本：0.1
+*****************************************/
+#include "Game.h"
+/******************* 游戏的结构类型定义 *******************/
+/*设置控制台窗口的标题*/
+void SetTitle(char *title)
+{
+    SetConsoleTitle(title);
+}
+/*设置文字的前景色和背景色*/
+void SetColor(int foreColor,int backColor)
+{
+    HANDLE winHandle;//句柄
+    winHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    //设置文字颜色
+    SetConsoleTextAttribute(winHandle,foreColor + backColor * 0x10);
+}
+/*设置光标的位置*/
+void SetPosition(int x,int y)
+{
+    HANDLE winHandle;//句柄
+    COORD pos = {x,y};
+    winHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    //设置光标的坐标
+    SetConsoleCursorPosition(winHandle,pos);
+}
+/*从x，y坐标开始，清rowCount行*/
+void clear(int x,int y,int rowCount)
+{
+    int i,j;
+    for(i = 0;i < rowCount;i++)
+    {
+        SetPosition(x,y+i);
+        for(j = 0;j < 78;j++)
+        {
+            printf(" ");
+        }
+    }
+}
+
+
+                                                                main.c
+#include <stdio.h>
+#include <stdlib.h>
+#include "Game.h"
+#include "GameLib.h"
+int main()
+{
+    /*
+    颜色属性由两个十六进制数字指定，第一个为背景色，
+    第二个为前景色，每个数字可以为下列值之一
+    黑色 = 0      蓝色 = 1      绿色 = 2      湖蓝色= 3
+    红色 = 4      紫色 = 5      黄色 = 6      白色  = 7
+    灰色 = 8      淡蓝色=9      淡绿色=A      淡红色= C
+    淡紫色=D      淡黄色=E      亮白色=F
+    */
+    system("color 12");//控制台背景颜色、文字颜色
+    SetTitle("笑傲江湖之精忠报国V0.1");
+    SetColor(14,1);//输出显示局部区域背景色及文字色
+    Init();
+    ShowWelcome();
+    ShowMap();
+    ShowInformation();
+    ShowMainMenu();
+    GetKey();
+
+    return 0;
+}
